@@ -153,6 +153,8 @@ thead th{
 tbody td{padding:9px 16px;border-top:1px solid var(--border);vertical-align:top;}
 tbody tr:hover{background:var(--surface-2);}
 td.num{color:var(--text-faint);font-size:12px;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+td.num a{color:var(--accent-text);text-decoration:none;}
+td.num a:hover{text-decoration:underline;}
 td.title{color:var(--text);max-width:420px;}
 td.portfolio,td.program{color:var(--text-dim);font-size:12.5px;max-width:220px;}
 td.phase{color:var(--text-dim);white-space:nowrap;}
@@ -220,6 +222,8 @@ ROWS.forEach(r => {
 const assignees = Object.keys(byAssignee).sort((a,b) => byAssignee[b].length - byAssignee[a].length);
 
 function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const SN_BASE = 'https://wwt1se.service-now.com/tsp2_project_list.do?sysparm_query=number=';
+function snUrl(number){ return SN_BASE + encodeURIComponent(number); }
 
 // KPIs
 const total = ROWS.length;
@@ -301,7 +305,7 @@ function render(){
     const isOpen = openState[a] !== undefined ? openState[a] : (assignees.filter(x=>x===a).length>0 && asg===a);
     const rowsHtml = rows.map(r => `
       <tr>
-        <td class="num">${esc(r[0])}</td>
+        <td class="num"><a href="${snUrl(r[0])}" target="_blank" rel="noopener noreferrer" title="Open ${esc(r[0])} in ServiceNow">${esc(r[0])}</a></td>
         <td class="title">${esc(r[1])}</td>
         <td class="portfolio">${esc(r[2])}</td>
         <td><span class="state-badge ${r[3]==='New'?'new':'active'}">${esc(r[3])}</span></td>
