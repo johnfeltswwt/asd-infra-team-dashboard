@@ -1,0 +1,354 @@
+<title>ASD Infra Team Workload</title>
+<style>
+:root{
+  --bg:#f5f6f8;
+  --surface:#ffffff;
+  --surface-2:#f0f1f4;
+  --border:#e2e4e9;
+  --text:#1c1e24;
+  --text-dim:#5b5f6b;
+  --text-faint:#8a8e99;
+  --accent:#5b47e0;
+  --accent-dim:#efeafd;
+  --accent-text:#4634b8;
+  --state-new:#2f6fed;
+  --state-new-bg:#e8f0fe;
+  --state-active:#0f9d58;
+  --state-active-bg:#e6f6ec;
+  --shadow: 0 1px 2px rgba(20,20,30,0.04), 0 4px 16px rgba(20,20,30,0.06);
+  --radius:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+:root:not([data-theme="light"]) {
+  @media (prefers-color-scheme: dark){
+    --bg:#14151a;
+    --surface:#1c1e24;
+    --surface-2:#23252c;
+    --border:#31333c;
+    --text:#eceef2;
+    --text-dim:#a7abb6;
+    --text-faint:#767a86;
+    --accent:#8b7bf0;
+    --accent-dim:#2a2450;
+    --accent-text:#b9adf7;
+    --state-new:#5b9bff;
+    --state-new-bg:#1c2a45;
+    --state-active:#3ecf8e;
+    --state-active-bg:#173328;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14151a;
+  --surface:#1c1e24;
+  --surface-2:#23252c;
+  --border:#31333c;
+  --text:#eceef2;
+  --text-dim:#a7abb6;
+  --text-faint:#767a86;
+  --accent:#8b7bf0;
+  --accent-dim:#2a2450;
+  --accent-text:#b9adf7;
+  --state-new:#5b9bff;
+  --state-new-bg:#1c2a45;
+  --state-active:#3ecf8e;
+  --state-active-bg:#173328;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  margin:0;
+  padding:32px clamp(16px,4vw,48px) 64px;
+  font-size:14px;
+  line-height:1.45;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:28px;}
+h1{font-size:24px;margin:0 0 4px;letter-spacing:-0.01em;}
+.subtitle{color:var(--text-dim);font-size:13.5px;max-width:640px;}
+.source-tag{
+  font-size:12px;color:var(--text-faint);background:var(--surface-2);border:1px solid var(--border);
+  border-radius:999px;padding:6px 12px;white-space:nowrap;
+}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:28px;}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;box-shadow:var(--shadow);
+}
+.kpi .num{font-size:26px;font-weight:600;letter-spacing:-0.02em;}
+.kpi .label{font-size:12px;color:var(--text-dim);margin-top:2px;}
+
+section{margin-bottom:32px;}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.section-head h2{font-size:15px;margin:0;font-weight:600;}
+.section-head .hint{font-size:12px;color:var(--text-faint);}
+
+.chart-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 20px 10px;box-shadow:var(--shadow);
+}
+.bar-row{display:grid;grid-template-columns:130px 1fr 40px;align-items:center;gap:10px;padding:6px 0;font-size:13px;}
+.bar-row .name{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.bar-row .name:hover{color:var(--accent-text);}
+.bar-track{background:var(--surface-2);border-radius:6px;height:16px;overflow:hidden;display:flex;}
+.bar-seg.new{background:var(--state-new);}
+.bar-seg.active{background:var(--state-active);}
+.bar-row .count{text-align:right;color:var(--text-dim);font-size:12.5px;}
+.legend{display:flex;gap:16px;margin:10px 2px 4px;font-size:12px;color:var(--text-dim);}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+
+.controls{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;
+}
+.controls input[type="text"]{
+  flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:9px 12px;font-size:13.5px;outline:none;
+}
+.controls input[type="text"]:focus{border-color:var(--accent);}
+.controls select{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:9px 10px;font-size:13px;outline:none;
+}
+.controls button.reset{
+  background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:10px;
+  padding:8px 12px;font-size:12.5px;cursor:pointer;
+}
+.controls button.reset:hover{color:var(--text);border-color:var(--text-dim);}
+.count-note{font-size:12.5px;color:var(--text-faint);margin-bottom:10px;}
+
+.group{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;
+}
+.group-head{
+  display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;
+  gap:12px;
+}
+.group-head:hover{background:var(--surface-2);}
+.group-head .left{display:flex;align-items:center;gap:10px;min-width:0;}
+.chev{transition:transform .15s ease;color:var(--text-faint);flex:none;font-size:11px;}
+.group.open .chev{transform:rotate(90deg);}
+.g-name{font-weight:600;font-size:13.5px;}
+.g-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{
+  font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap;
+}
+.pill.new{background:var(--state-new-bg);color:var(--state-new);}
+.pill.active{background:var(--state-active-bg);color:var(--state-active);}
+.g-count{font-size:12.5px;color:var(--text-faint);flex:none;}
+
+.group-body{display:none;border-top:1px solid var(--border);}
+.group.open .group-body{display:block;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{
+  text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-faint);
+  padding:8px 16px;font-weight:600;background:var(--surface-2);
+}
+tbody td{padding:9px 16px;border-top:1px solid var(--border);vertical-align:top;}
+tbody tr:hover{background:var(--surface-2);}
+td.num{color:var(--text-faint);font-size:12px;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+td.title{color:var(--text);max-width:420px;}
+td.portfolio,td.program{color:var(--text-dim);font-size:12.5px;max-width:220px;}
+td.phase{color:var(--text-dim);white-space:nowrap;}
+.state-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap;}
+.state-badge.new{background:var(--state-new-bg);color:var(--state-new);}
+.state-badge.active{background:var(--state-active-bg);color:var(--state-active);}
+
+.overflow-x{overflow-x:auto;}
+.empty-note{padding:24px;text-align:center;color:var(--text-faint);font-size:13px;}
+footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>ASD Infra Team Workload</h1>
+      <div class="subtitle">Open ATCBLD projects assigned within John Felts' manager hierarchy — excludes Closed Complete and Closed Incomplete work. Pulled from the <strong>ASD-INFRA-DCC-Assignments</strong> ServiceNow report.</div>
+    </div>
+    <div class="source-tag">71 projects · 8 assignees · pulled Aug 26, 2026</div>
+  </header>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <section>
+    <div class="section-head">
+      <h2>Workload by person</h2>
+      <span class="hint">click a name to filter the table below</span>
+    </div>
+    <div class="chart-card">
+      <div id="chart"></div>
+      <div class="legend">
+        <span><i style="background:var(--state-new)"></i> New</span>
+        <span><i style="background:var(--state-active)"></i> Active</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>All projects</h2>
+    </div>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search project, number, portfolio, or program…">
+      <select id="fState"><option value="">All states</option></select>
+      <select id="fPhase"><option value="">All phases</option></select>
+      <select id="fAssignee"><option value="">All assignees</option></select>
+      <button class="reset" id="resetBtn">Reset filters</button>
+    </div>
+    <div class="count-note" id="countNote"></div>
+    <div id="groups"></div>
+  </section>
+
+  <footer>Source: ServiceNow report ASD-INFRA-DCC-Assignments (table: ATCBLD Project). Filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; Assigned to in John Felts' manager hierarchy.</footer>
+</div>
+
+<script>
+const ROWS = [["ATCBLD0006965", "Getting Started with Rubrik: Initial Setup and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006964", "Overview of Protecting Active Directory with Rubrik", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006966", "Rubrik Full Backup and Verification Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006967", "Rubrik Integration Across Virtual and Cloud Platforms", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006968", "Rubrik Restore Operations: Granular and Full Recovery Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0007218", "An Introduction to Software-Defined Networking (SDN)", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007214", "Datastores and Provisioning: Where Virtual Machines Live", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007215", "Modern Storage: HCI, Software-Defined Storage, and Performance Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007219", "Securing Virtual Environments", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007220", "Setting Up Your First Virtualization Environment", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007216", "Virtual Networking Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007221", "Which Hypervisor is Right For You?", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0006980", "Access Visibility", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006978", "Auto-Discovery and the Agent Inventory", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006996", "Choosing Your Model", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006990", "Code-Repository Recovery", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006989", "Recovering Data and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006997", "Rubrik Agent Cloud - Demonstration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006565", "SCE (Phase 2) Tanzu and VMware AVI Lab", "asd-infra-hypervisor - 100017452", "Active", "Scoping", "John Felts", "SoCal Edison - Tanzu and NSX Training"], ["ATCBLD0006995", "Spotlight: Agents Built with Claude Code and Claude Co-Work", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006992", "Telemetry Sources", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006981", "The Immutable Audit Trail", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006993", "The Three Deployment Patterns", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006974", "Why Existing Controls Fall Short", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006690", "Key NetApp ONTAP Terms", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006683", "NetApp ONTAP NAS Fundamentals", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006689", "NetApp ONTAP Product Lineup", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006685", "NetApp ONTAP S3 Object Storage Fundamentals", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006684", "NetApp ONTAP SAN Fundamentals", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006692", "Understanding ONTAP SnapMirror", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006691", "Understanding ONTAP Snapshots", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006688", "What is NetApp ONTAP?", "asd-infra-primarystorage - 10017539", "Active", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006687", "Working with NetApp ONTAP Snapmirror", "asd-infra-primarystorage - 10017539", "New", "Backlog", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006686", "Working with NetApp ONTAP Snapshots", "asd-infra-primarystorage - 10017539", "New", "Building", "Justin Hoppe", "NetApp ONTAP Storage Fundamentals"], ["ATCBLD0006710", "Kubernetes RBAC and Workload Security", "asd-infra-kubernetes - 10017537", "Active", "Building", "Mike Lafser", "Advanced Kubernetes for the Infrastructure"], ["ATCBLD0006613", "Nokia PON Lab Update", "Infrastructure Labs (asd-infra-)", "New", "Backlog", "Mike Lafser", "Data Center"], ["ATCBLD0006454", "Commvault Platform Essentials", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense"], ["ATCBLD0006399", "Commvault: Protecting Physical Servers", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense"], ["ATCBLD0006374", "Commvault: Virtual Machine Protection", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense"], ["ATCBLD0005129", "Protecting Kubernetes with Veeam", "asd-infra-kubernetes - 10017537", "Active", "Building", "Terry Huber", "Advanced Kubernetes for the Infrastructure"], ["ATCBLD0006937", "Addressing and Subnetting", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006943", "Anatomy of a Unit File", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006934", "Arrays and Parameter Expansion", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006942", "Capturing Traffic with tcpdump", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006954", "CPU and Load with vmstat and sar", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006936", "Debugging Scripts with set -x and shellcheck", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006935", "Defensive Scripting: Traps and Getopts", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006944", "Dependencies, Ordering, and Targets", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006956", "Disk I/O with iostat", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006940", "DNS Resolution and /etc/resolv.conf", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006960", "Encryption at Rest with LUKS", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006933", "Functions and Return Values", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006961", "How Mandatory Access Control Works", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006941", "Inspecting Connections with ss", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006947", "Linux - Broken Path", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006950", "Linux - Confined Service", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006946", "Linux - Log Rotation Tool", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006949", "Linux - Performance Investigation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006948", "Linux - Service Packaging", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006959", "LVM Snapshots", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006955", "Memory Pressure and Swap", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006953", "Persistent Journald and Log Filtering", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006958", "RAID Concepts and mdadm", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006951", "Resource Control with CGROUPS and SLICES", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006939", "Routing and the Default Gateway", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006945", "Service Types and Restart Behaivors", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006952", "Socket Activation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006938", "The IP Suite: Interfaces and Addresses", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006957", "Tuning Kernel Parameters with sysctl", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006963", "Writing a SELinux Policy", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006962", "Writing an AppArmor Profile", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"]];
+// columns: number, title, portfolio, state, phase, assignee, program
+
+const byAssignee = {};
+ROWS.forEach(r => {
+  const a = r[5];
+  (byAssignee[a] = byAssignee[a] || []).push(r);
+});
+const assignees = Object.keys(byAssignee).sort((a,b) => byAssignee[b].length - byAssignee[a].length);
+
+function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// KPIs
+const total = ROWS.length;
+const unassigned = (byAssignee['(empty)']||[]).length;
+const people = assignees.filter(a => a !== '(empty)').length;
+const newCount = ROWS.filter(r => r[3]==='New').length;
+const activeCount = ROWS.filter(r => r[3]==='Active').length;
+const kpis = [
+  [total, 'Total open projects'],
+  [people, 'Team members with work'],
+  [newCount, 'Not started (New)'],
+  [activeCount, 'In progress (Active)'],
+  [unassigned, 'Unassigned'],
+];
+document.getElementById('kpiRow').innerHTML = kpis.map(([n,l]) =>
+  `<div class="kpi"><div class="num">${n}</div><div class="label">${l}</div></div>`
+).join('');
+
+// Chart
+const maxCount = Math.max(...assignees.map(a => byAssignee[a].length));
+document.getElementById('chart').innerHTML = assignees.map(a => {
+  const rows = byAssignee[a];
+  const n = rows.length;
+  const nNew = rows.filter(r=>r[3]==='New').length;
+  const nActive = n - nNew;
+  const wNew = (nNew/maxCount*100).toFixed(1);
+  const wActive = (nActive/maxCount*100).toFixed(1);
+  const label = a === '(empty)' ? 'Unassigned' : a;
+  return `<div class="bar-row" data-name="${esc(a)}">
+    <div class="name" title="${esc(label)}">${esc(label)}</div>
+    <div class="bar-track"><div class="bar-seg new" style="width:${wNew}%"></div><div class="bar-seg active" style="width:${wActive}%"></div></div>
+    <div class="count">${n}</div>
+  </div>`;
+}).join('');
+
+document.querySelectorAll('.bar-row').forEach(el => {
+  el.addEventListener('click', () => {
+    const name = el.getAttribute('data-name');
+    document.getElementById('fAssignee').value = name;
+    render();
+    document.getElementById('groups').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+
+// Filter dropdowns
+const states = [...new Set(ROWS.map(r=>r[3]))].sort();
+const phases = [...new Set(ROWS.map(r=>r[4]))].sort();
+document.getElementById('fState').innerHTML += states.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+document.getElementById('fPhase').innerHTML += phases.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+document.getElementById('fAssignee').innerHTML += assignees.map(a=>`<option value="${esc(a)}">${esc(a==='(empty)'?'Unassigned':a)}</option>`).join('');
+
+const searchEl = document.getElementById('search');
+const fState = document.getElementById('fState');
+const fPhase = document.getElementById('fPhase');
+const fAssignee = document.getElementById('fAssignee');
+const openState = {};
+
+function render(){
+  const q = searchEl.value.trim().toLowerCase();
+  const st = fState.value, ph = fPhase.value, asg = fAssignee.value;
+
+  let shown = 0;
+  const groupsHtml = assignees.filter(a => !asg || a===asg).map(a => {
+    let rows = byAssignee[a];
+    rows = rows.filter(r => {
+      if (st && r[3]!==st) return false;
+      if (ph && r[4]!==ph) return false;
+      if (q){
+        const hay = (r[0]+' '+r[1]+' '+r[2]+' '+r[6]).toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    if (rows.length===0) return '';
+    shown += rows.length;
+    const label = a==='(empty)' ? 'Unassigned' : a;
+    const nNew = rows.filter(r=>r[3]==='New').length;
+    const nActive = rows.length - nNew;
+    const isOpen = openState[a] !== undefined ? openState[a] : (assignees.filter(x=>x===a).length>0 && asg===a);
+    const rowsHtml = rows.map(r => `
+      <tr>
+        <td class="num">${esc(r[0])}</td>
+        <td class="title">${esc(r[1])}</td>
+        <td class="portfolio">${esc(r[2])}</td>
+        <td><span class="state-badge ${r[3]==='New'?'new':'active'}">${esc(r[3])}</span></td>
+        <td class="phase">${esc(r[4])}</td>
+        <td class="program">${esc(r[6])}</td>
+      </tr>`).join('');
+    return `<div class="group ${isOpen?'open':''}" data-key="${esc(a)}">
+      <div class="group-head">
+        <div class="left">
+          <span class="chev">▶</span>
+          <span class="g-name">${esc(label)}</span>
+        </div>
+        <div class="g-badges">
+          ${nNew?`<span class="pill new">${nNew} new</span>`:''}
+          ${nActive?`<span class="pill active">${nActive} active</span>`:''}
+        </div>
+        <span class="g-count">${rows.length} project${rows.length===1?'':'s'}</span>
+      </div>
+      <div class="group-body">
+        <div class="overflow-x">
+        <table>
+          <thead><tr><th>Number</th><th>Project</th><th>Portfolio</th><th>State</th><th>Phase</th><th>Program</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('groups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
+  document.getElementById('countNote').textContent = `Showing ${shown} of ${total} projects`;
+
+  document.querySelectorAll('.group-head').forEach(h => {
+    h.addEventListener('click', () => {
+      const g = h.closest('.group');
+      const key = g.getAttribute('data-key');
+      g.classList.toggle('open');
+      openState[key] = g.classList.contains('open');
+    });
+  });
+}
+
+[searchEl, fState, fPhase, fAssignee].forEach(el => el.addEventListener('input', render));
+document.getElementById('resetBtn').addEventListener('click', () => {
+  searchEl.value=''; fState.value=''; fPhase.value=''; fAssignee.value='';
+  render();
+});
+
+render();
+</script>
