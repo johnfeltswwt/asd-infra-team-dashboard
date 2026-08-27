@@ -161,6 +161,8 @@ td.phase{color:var(--text-dim);white-space:nowrap;}
 .state-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap;}
 .state-badge.new{background:var(--state-new-bg);color:var(--state-new);}
 .state-badge.active{background:var(--state-active-bg);color:var(--state-active);}
+.state-badge.closed{background:var(--surface-2);color:var(--text-dim);}
+.pill.closed{background:var(--surface-2);color:var(--text-dim);}
 
 .overflow-x{overflow-x:auto;}
 .empty-note{padding:24px;text-align:center;color:var(--text-faint);font-size:13px;}
@@ -207,7 +209,21 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     <div id="groups"></div>
   </section>
 
-  <footer>Source: ServiceNow report ASD-INFRA-DCC-Assignments (table: ATCBLD Project). Filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; Assigned to in John Felts' manager hierarchy.</footer>
+  <section>
+    <div class="section-head">
+      <h2>Closed since last quarter</h2>
+      <span class="hint">Closed Complete work with an end date after last quarter — click a name to filter</span>
+    </div>
+    <div class="controls">
+      <input type="text" id="searchClosed" placeholder="Search project, number, portfolio, or program…">
+      <select id="fAssigneeClosed"><option value="">All assignees</option></select>
+      <button class="reset" id="resetClosedBtn">Reset filters</button>
+    </div>
+    <div class="count-note" id="countNoteClosed"></div>
+    <div id="closedGroups"></div>
+  </section>
+
+  <footer>Source: ServiceNow reports ASD-INFRA-DCC-Assignments and ASD-Infra-DCC-closedsincelastqtr (table: ATCBLD Project). Open-work filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; Assigned to in John Felts' manager hierarchy. Closed-work filter: State = Closed Complete; end date after last quarter; same portfolio/hierarchy scope.</footer>
 </div>
 
 <script>
@@ -355,4 +371,91 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 });
 
 render();
+
+// ---- Closed since last quarter ----
+const CLOSED_ROWS = [["ATCBLD0007213", "Choosing a Storage Protocol for Virtualization", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007211", "Resource Management", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007212", "Storage Fundamentals for Virtualization", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007209", "Virtual Infrastructure", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007210", "Virtual Machine Files", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007217", "Virtual Network Modes: NAT, Bridged, and Host-Only", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0006984", "Authoring an Access Policy", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006983", "Governing Inputs and Outputs", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007136", "Introducing Microsoft Agent 365: The Control Plane for Enterprise AI Agents", "asd-infra-serverinfra 10017540", "Closed Complete", "Published", "John Felts", "The Frontier Suite Explained: E7, Copilot Cowork & Agent 365"], ["ATCBLD0007061", "Introducing Rubrik Agent Cloud", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007134", "Microsoft 365 E7: The Frontier Suite", "asd-infra-serverinfra 10017540", "Closed Complete", "Published", "John Felts", "The Frontier Suite Explained: E7, Copilot Cowork & Agent 365"], ["ATCBLD0006918", "Microsoft Co-Pilot and Surface - Better Together", "asd-infra-cloud - 10020770", "Closed Complete", "Published", "John Felts", "Microsoft Surface and Secure AI - Better Together"], ["ATCBLD0007135", "Microsoft Copilot Cowork: What Executives Should Know", "asd-infra-serverinfra 10017540", "Closed Complete", "Published", "John Felts", "The Frontier Suite Explained: E7, Copilot Cowork & Agent 365"], ["ATCBLD0006979", "Risk Profiling in Rubrik Agent Cloud", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006919", "Security Starts in Silicon - Why Microsoft Surface is the Future of Endpoint Management", "asd-infra-cloud - 10020770", "Closed Complete", "Published", "John Felts", "Microsoft Surface and Secure AI - Better Together"], ["ATCBLD0006975", "The Control-Layer Model", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006973", "The New Risk Surface", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006976", "The Three Pillars", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007062", "What Is Rubrik Agent Cloud?", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006982", "What Policy-Based Governance Means for Agents", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006977", "Where Rubrik Agent Cloud Fits In The Rubrik Story", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006972", "Why Agent Governance Matters - The Rise of Autonomous Agents", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"]];
+// columns: number, title, portfolio, state, phase, assignee, program
+
+const byAssigneeClosed = {};
+CLOSED_ROWS.forEach(r => {
+  const a = r[5];
+  (byAssigneeClosed[a] = byAssigneeClosed[a] || []).push(r);
+});
+const assigneesClosed = Object.keys(byAssigneeClosed).sort((a,b) => byAssigneeClosed[b].length - byAssigneeClosed[a].length);
+const totalClosed = CLOSED_ROWS.length;
+
+document.getElementById('fAssigneeClosed').innerHTML += assigneesClosed.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+
+const searchClosedEl = document.getElementById('searchClosed');
+const fAssigneeClosed = document.getElementById('fAssigneeClosed');
+const openStateClosed = {};
+
+function renderClosed(){
+  const q = searchClosedEl.value.trim().toLowerCase();
+  const asg = fAssigneeClosed.value;
+
+  let shown = 0;
+  const groupsHtml = assigneesClosed.filter(a => !asg || a===asg).map(a => {
+    let rows = byAssigneeClosed[a];
+    rows = rows.filter(r => {
+      if (q){
+        const hay = (r[0]+' '+r[1]+' '+r[2]+' '+r[6]).toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    if (rows.length===0) return '';
+    shown += rows.length;
+    const isOpen = openStateClosed[a] !== undefined ? openStateClosed[a] : true;
+    const rowsHtml = rows.map(r => `
+      <tr>
+        <td class="num"><a href="${snUrl(r[0])}" target="_blank" rel="noopener noreferrer" title="Open ${esc(r[0])} in ServiceNow">${esc(r[0])}</a></td>
+        <td class="title">${esc(r[1])}</td>
+        <td class="portfolio">${esc(r[2])}</td>
+        <td><span class="state-badge closed">${esc(r[3])}</span></td>
+        <td class="phase">${esc(r[4])}</td>
+        <td class="program">${esc(r[6])}</td>
+      </tr>`).join('');
+    return `<div class="group ${isOpen?'open':''}" data-key="${esc(a)}">
+      <div class="group-head">
+        <div class="left">
+          <span class="chev">▶</span>
+          <span class="g-name">${esc(a)}</span>
+        </div>
+        <div class="g-badges">
+          <span class="pill closed">${rows.length} closed</span>
+        </div>
+        <span class="g-count">${rows.length} project${rows.length===1?'':'s'}</span>
+      </div>
+      <div class="group-body">
+        <div class="overflow-x">
+        <table>
+          <thead><tr><th>Number</th><th>Project</th><th>Portfolio</th><th>State</th><th>Phase</th><th>Program</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('closedGroups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
+  document.getElementById('countNoteClosed').textContent = `Showing ${shown} of ${totalClosed} closed projects · pulled Aug 27, 2026`;
+
+  document.querySelectorAll('#closedGroups .group-head').forEach(h => {
+    h.addEventListener('click', () => {
+      const g = h.closest('.group');
+      const key = g.getAttribute('data-key');
+      g.classList.toggle('open');
+      openStateClosed[key] = g.classList.contains('open');
+    });
+  });
+}
+
+[searchClosedEl, fAssigneeClosed].forEach(el => el.addEventListener('input', renderClosed));
+document.getElementById('resetClosedBtn').addEventListener('click', () => {
+  searchClosedEl.value=''; fAssigneeClosed.value='';
+  renderClosed();
+});
+
+renderClosed();
 </script>
