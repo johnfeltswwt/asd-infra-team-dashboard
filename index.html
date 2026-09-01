@@ -15,6 +15,8 @@
   --state-new-bg:#e8f0fe;
   --state-active:#0f9d58;
   --state-active-bg:#e6f6ec;
+  --state-warn:#b5810a;
+  --state-warn-bg:#fbf0da;
   --shadow: 0 1px 2px rgba(20,20,30,0.04), 0 4px 16px rgba(20,20,30,0.06);
   --radius:14px;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
@@ -35,6 +37,8 @@
     --state-new-bg:#1c2a45;
     --state-active:#3ecf8e;
     --state-active-bg:#173328;
+    --state-warn:#e0b34d;
+    --state-warn-bg:#3a2f13;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
   }
 }
@@ -53,6 +57,8 @@
   --state-new-bg:#1c2a45;
   --state-active:#3ecf8e;
   --state-active-bg:#173328;
+  --state-warn:#e0b34d;
+  --state-warn-bg:#3a2f13;
   --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box;}
@@ -158,6 +164,7 @@ td.num a:hover{text-decoration:underline;}
 td.title{color:var(--text);max-width:420px;}
 td.portfolio,td.program{color:var(--text-dim);font-size:12.5px;max-width:220px;}
 td.phase{color:var(--text-dim);white-space:nowrap;}
+td.date{color:var(--text);white-space:nowrap;font-size:12.5px;}
 .state-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap;}
 .state-badge.new{background:var(--state-new-bg);color:var(--state-new);}
 .state-badge.active{background:var(--state-active-bg);color:var(--state-active);}
@@ -165,8 +172,10 @@ td.phase{color:var(--text-dim);white-space:nowrap;}
 .pill.closed{background:var(--surface-2);color:var(--text-dim);}
 .state-badge.thisq{background:var(--accent-dim);color:var(--accent-text);}
 .pill.thisq{background:var(--accent-dim);color:var(--accent-text);}
-.state-badge.nextq{background:var(--surface-2);color:var(--text-dim);}
-.pill.nextq{background:var(--surface-2);color:var(--text-dim);}
+.state-badge.nextq{background:var(--state-new-bg);color:var(--state-new);}
+.pill.nextq{background:var(--state-new-bg);color:var(--state-new);}
+.state-badge.futq{background:var(--state-warn-bg);color:var(--state-warn);}
+.pill.futq{background:var(--state-warn-bg);color:var(--state-warn);}
 
 .overflow-x{overflow-x:auto;}
 .empty-note{padding:24px;text-align:center;color:var(--text-faint);font-size:13px;}
@@ -177,10 +186,24 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
   <header class="top">
     <div>
       <h1>ASD Infra Team Workload</h1>
-      <div class="subtitle">Open ATCBLD projects assigned within John Felts' manager hierarchy — excludes Closed Complete and Closed Incomplete work. Pulled from the <strong>ASD-INFRA-DCC-Assignments</strong> ServiceNow report.</div>
+      <div class="subtitle">Content pipeline for John Felts' ASD Infra team — recently published work, everything currently assigned, and the roadmap ahead. Pulled from the <strong>ASD-INFRA-DCC-Assignments</strong>, <strong>ASD-Infra-DCC-closedsincelastqtr</strong>, and <strong>ASD-INFRA-DCC-Roadmap</strong> ServiceNow reports.</div>
     </div>
-    <div class="source-tag">61 projects · 7 assignees · pulled Aug 31, 2026</div>
+    <div class="source-tag">76 assigned &middot; 6 published (14d) &middot; 72 on roadmap &middot; pulled Sep 1, 2026</div>
   </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Published in the last 2 weeks</h2>
+      <span class="hint">Closed Complete work with an end date in the last 14 days — grouped by assignee</span>
+    </div>
+    <div class="controls">
+      <input type="text" id="searchPublished" placeholder="Search project, number, portfolio, or program…">
+      <select id="fAssigneePublished"><option value="">All assignees</option></select>
+      <button class="reset" id="resetPublishedBtn">Reset filters</button>
+    </div>
+    <div class="count-note" id="countNotePublished"></div>
+    <div id="publishedGroups"></div>
+  </section>
 
   <div class="kpi-row" id="kpiRow"></div>
 
@@ -200,7 +223,8 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
 
   <section>
     <div class="section-head">
-      <h2>All projects</h2>
+      <h2>Currently assigned</h2>
+      <span class="hint">Open ATCBLD projects assigned within the team hierarchy — excludes Closed Complete and Closed Incomplete</span>
     </div>
     <div class="controls">
       <input type="text" id="search" placeholder="Search project, number, portfolio, or program…">
@@ -215,38 +239,29 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
 
   <section>
     <div class="section-head">
-      <h2>Roadmap (this + next quarter)</h2>
-      <span class="hint">Planned work by portfolio, scheduled this quarter or next</span>
+      <h2>Roadmap</h2>
+      <span class="hint">Planned work by program, scheduled this quarter, next quarter, or the quarter after — with roadmap date</span>
     </div>
     <div class="controls">
       <input type="text" id="searchRoadmap" placeholder="Search project, number, portfolio, or program…">
       <select id="fAssigneeRoadmap"><option value="">All assignees</option></select>
-      <select id="fQuarterRoadmap"><option value="">Both quarters</option><option value="This Quarter">This quarter</option><option value="Next Quarter">Next quarter</option></select>
+      <select id="fQuarterRoadmap"><option value="">All quarters</option></select>
       <button class="reset" id="resetRoadmapBtn">Reset filters</button>
     </div>
     <div class="count-note" id="countNoteRoadmap"></div>
     <div id="roadmapGroups"></div>
   </section>
 
-  <section>
-    <div class="section-head">
-      <h2>Closed since last quarter</h2>
-      <span class="hint">Closed Complete work with an end date after last quarter — click a name to filter</span>
-    </div>
-    <div class="controls">
-      <input type="text" id="searchClosed" placeholder="Search project, number, portfolio, or program…">
-      <select id="fAssigneeClosed"><option value="">All assignees</option></select>
-      <button class="reset" id="resetClosedBtn">Reset filters</button>
-    </div>
-    <div class="count-note" id="countNoteClosed"></div>
-    <div id="closedGroups"></div>
-  </section>
-
-  <footer>Source: ServiceNow reports ASD-INFRA-DCC-Assignments, ASD-INFRA-DCC-Roadmap, and ASD-Infra-DCC-closedsincelastqtr (table: ATCBLD Project). Open-work filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; Assigned to in John Felts' manager hierarchy. Roadmap filter: State in New/Active/Pending; Phase in Backlog/Scoping/Building/Review/Support; Program not empty; roadmap date falls in this quarter or next quarter; assigned to the ASD-Infra team. Closed-work filter: State = Closed Complete; end date after last quarter; same portfolio/hierarchy scope.</footer>
+  <footer>Source: ServiceNow reports ASD-INFRA-DCC-Assignments, ASD-Infra-DCC-closedsincelastqtr, and ASD-INFRA-DCC-Roadmap (table: ATCBLD Project). Published filter: State = Closed Complete; end date within the last 14 days; ASD-Infra portfolio and team-hierarchy scope. Currently-assigned filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; assigned to John Felts' manager hierarchy. Roadmap filter: State in New/Active; Phase not Published; Program not empty; roadmap date within this quarter through two quarters out; same portfolio/hierarchy scope.</footer>
 </div>
 
 <script>
-const ROWS = [["ATCBLD0006965", "Getting Started with Rubrik: Initial Setup and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006964", "Overview of Protecting Active Directory with Rubrik", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006966", "Rubrik Full Backup and Verification Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006967", "Rubrik Integration Across Virtual and Cloud Platforms", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0006968", "Rubrik Restore Operations: Granular and Full Recovery Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory"], ["ATCBLD0007218", "An Introduction to Software-Defined Networking (SDN)", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007214", "Datastores and Provisioning: Where Virtual Machines Live", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007215", "Modern Storage: HCI, Software-Defined Storage, and Performance Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007219", "Securing Virtual Environments", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007220", "Setting Up Your First Virtualization Environment", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007216", "Virtual Networking Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007221", "Which Hypervisor is Right For You?", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0006980", "Access Visibility", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006978", "Auto-Discovery and the Agent Inventory", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006996", "Choosing Your Model", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006990", "Code-Repository Recovery", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006989", "Recovering Data and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006997", "Rubrik Agent Cloud - Demonstration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006565", "SCE (Phase 2) Tanzu and VMware AVI Lab", "asd-infra-hypervisor - 100017452", "Active", "Scoping", "John Felts", "SoCal Edison - Tanzu and NSX Training"], ["ATCBLD0006995", "Spotlight: Agents Built with Claude Code and Claude Co-Work", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006992", "Telemetry Sources", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006981", "The Immutable Audit Trail", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006993", "The Three Deployment Patterns", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006974", "Why Existing Controls Fall Short", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006613", "Nokia PON Lab Update", "Infrastructure Labs (asd-infra-)", "New", "Backlog", "Mike Lafser", "Data Center"], ["ATCBLD0007071", "Virtualization in Kubernetes with KubeVirt", "asd-infra-kubernetes - 10017537", "Active", "Building", "Mike Lafser", "Advanced Kubernetes for the Infrastructure"], ["ATCBLD0006454", "Commvault Platform Essentials", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense"], ["ATCBLD0006399", "Commvault: Protecting Physical Servers", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense"], ["ATCBLD0006374", "Commvault: Virtual Machine Protection", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense"], ["ATCBLD0005129", "Protecting Kubernetes with Veeam", "asd-infra-kubernetes - 10017537", "Active", "Building", "Terry Huber", "Advanced Kubernetes for the Infrastructure"], ["ATCBLD0006937", "Addressing and Subnetting", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006943", "Anatomy of a Unit File", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006934", "Arrays and Parameter Expansion", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006942", "Capturing Traffic with tcpdump", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006954", "CPU and Load with vmstat and sar", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006936", "Debugging Scripts with set -x and shellcheck", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006935", "Defensive Scripting: Traps and Getopts", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006944", "Dependencies, Ordering, and Targets", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006956", "Disk I/O with iostat", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006940", "DNS Resolution and /etc/resolv.conf", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006960", "Encryption at Rest with LUKS", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006933", "Functions and Return Values", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006961", "How Mandatory Access Control Works", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006941", "Inspecting Connections with ss", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006947", "Linux - Broken Path", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006950", "Linux - Confined Service", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006946", "Linux - Log Rotation Tool", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006949", "Linux - Performance Investigation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006948", "Linux - Service Packaging", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006959", "LVM Snapshots", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006955", "Memory Pressure and Swap", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006953", "Persistent Journald and Log Filtering", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006958", "RAID Concepts and mdadm", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006951", "Resource Control with CGROUPS and SLICES", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006939", "Routing and the Default Gateway", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006945", "Service Types and Restart Behaivors", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006952", "Socket Activation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006938", "The IP Suite: Interfaces and Addresses", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006957", "Tuning Kernel Parameters with sysctl", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006963", "Writing a SELinux Policy", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"], ["ATCBLD0006962", "Writing an AppArmor Profile", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate"]];
+function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const SN_BASE = 'https://wwt1se.service-now.com/tsp2_project_list.do?sysparm_query=number=';
+function snUrl(number){ return SN_BASE + encodeURIComponent(number); }
+
+// ---- Currently assigned ----
+const ROWS = [["ATCBLD0006965", "Getting Started with Rubrik: Initial Setup and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "Diana Newman", "Getting Started with Rubrik Active Directory Protection"], ["ATCBLD0006964", "Overview of Protecting Active Directory with Rubrik", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "Diana Newman", "Getting Started with Rubrik Active Directory Protection"], ["ATCBLD0006966", "Rubrik Full Backup and Verification Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory Protection"], ["ATCBLD0006967", "Rubrik Integration Across Virtual and Cloud Platforms", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory Protection"], ["ATCBLD0006968", "Rubrik Restore Operations: Granular and Full Recovery Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory Protection"], ["ATCBLD0007218", "An Introduction to Software-Defined Networking (SDN)", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007214", "Datastores and Provisioning: Where Virtual Machines Live", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007215", "Modern Storage: HCI, Software-Defined Storage, and Performance Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007219", "Securing Virtual Environments", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007220", "Setting Up Your First Virtualization Environment", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007216", "Virtual Networking Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007221", "Which Hypervisor is Right For You?", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0006980", "Access Visibility", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006978", "Auto-Discovery and the Agent Inventory", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006932", "Azure Monitoring and Logging", "asd-infra-auto - 10028991", "New", "Backlog", "John Felts", "Instruqt Conversion"], ["ATCBLD0006996", "Choosing Your Model", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006990", "Code-Repository Recovery", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006989", "Recovering Data and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006997", "Rubrik Agent Cloud - Demonstration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006565", "SCE (Phase 2) Tanzu and VMware AVI Lab", "asd-infra-hypervisor - 100017452", "Active", "Scoping", "John Felts", "SoCal Edison - Tanzu and NSX Training - PS (Service) - WWT Digital Training"], ["ATCBLD0006995", "Spotlight: Agents Built with Claude Code and Claude Co-Work", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006992", "Telemetry Sources", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006981", "The Immutable Audit Trail", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006993", "The Three Deployment Patterns", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006974", "Why Existing Controls Fall Short", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007071", "Virtualization in Kubernetes with KubeVirt", "asd-infra-kubernetes - 10017537", "Active", "Building", "Mike Lafser", "Advanced Kubernetes for the Infrastructure Engineer (Plus)"], ["ATCBLD0006928", "Azure Compute Fundamantals", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion"], ["ATCBLD0007257", "Azure CoPilot Cost Optimization Walkthrough", "asd-infra-cloud - 10020770", "Active", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot"], ["ATCBLD0007256", "Azure Cost Management Dashboard", "asd-infra-cloud - 10020770", "Active", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot"], ["ATCBLD0006930", "Azure Identity & Access Management", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion"], ["ATCBLD0006931", "Azure Management Tools", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion"], ["ATCBLD0006929", "Azure Storage Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion"], ["ATCBLD0007254", "Cloud Resources: The Importance of Cost Management", "asd-infra-cloud - 10020770", "New", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot"], ["ATCBLD0006454", "Commvault Platform Essentials", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense (Fund/Core)"], ["ATCBLD0006399", "Commvault: Protecting Physical Servers", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense (Fund/Core)"], ["ATCBLD0006374", "Commvault: Virtual Machine Protection", "asd-infra-dataprotectcyberres 10017583", "Active", "Support", "Nichole Mooney-Aubry", "Commvault: Data Protection and Defense (Fund/Core)"], ["ATCBLD0007255", "CoPilot: Tips and Tricks", "asd-infra-cloud - 10020770", "Active", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot"], ["ATCBLD0006924", "AQS Identity Access Management", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion"], ["ATCBLD0006923", "AWS Compute Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion"], ["ATCBLD0006925", "AWS Logging and Monitoring", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion"], ["ATCBLD0006926", "AWS Networking Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion"], ["ATCBLD0006927", "AWS Storage Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion"], ["ATCBLD0005129", "Protecting Kubernetes with Veeam", "asd-infra-kubernetes - 10017537", "Active", "Building", "Terry Huber", "Advanced Kubernetes for the Infrastructure Engineer (Plus)"], ["ATCBLD0006937", "Addressing and Subnetting", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006943", "Anatomy of a Unit File", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006934", "Arrays and Parameter Expansion", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006942", "Capturing Traffic with tcpdump", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006954", "CPU and Load with vmstat and sar", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006936", "Debugging Scripts with set -x and shellcheck", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006935", "Defensive Scripting: Traps and Getopts", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006944", "Dependencies, Ordering, and Targets", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006956", "Disk I/O with iostat", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006940", "DNS Resolution and /etc/resolv.conf", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006960", "Encryption at Rest with LUKS", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006933", "Functions and Return Values", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006921", "Google Cloud - Creating Cloud Storage", "asd-infra-auto - 10028991", "New", "Backlog", "Will Robertson", "Instruqt Conversion"], ["ATCBLD0006922", "Google Cloud - Creating Virtual Machines and VPC's", "asd-infra-auto - 10028991", "New", "Backlog", "Will Robertson", "Instruqt Conversion"], ["ATCBLD0006961", "How Mandatory Access Control Works", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006941", "Inspecting Connections with ss", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006947", "Linux - Broken Path", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006950", "Linux - Confined Service", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006946", "Linux - Log Rotation Tool", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006949", "Linux - Performance Investigation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006948", "Linux - Service Packaging", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006959", "LVM Snapshots", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006955", "Memory Pressure and Swap", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006953", "Persistent Journald and Log Filtering", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006958", "RAID Concepts and mdadm", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006951", "Resource Control with CGROUPS and SLICES", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006939", "Routing and the Default Gateway", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006945", "Service Types and Restart Behaivors", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006952", "Socket Activation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006938", "The IP Suite: Interfaces and Addresses", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006957", "Tuning Kernel Parameters with sysctl", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006963", "Writing a SELinux Policy", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"], ["ATCBLD0006962", "Writing an AppArmor Profile", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)"]];
 // columns: number, title, portfolio, state, phase, assignee, program
 
 const byAssignee = {};
@@ -256,10 +271,6 @@ ROWS.forEach(r => {
 });
 const assignees = Object.keys(byAssignee).sort((a,b) => byAssignee[b].length - byAssignee[a].length);
 
-function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-const SN_BASE = 'https://wwt1se.service-now.com/tsp2_project_list.do?sysparm_query=number=';
-function snUrl(number){ return SN_BASE + encodeURIComponent(number); }
-
 // KPIs
 const total = ROWS.length;
 const unassigned = (byAssignee['(empty)']||[]).length;
@@ -267,7 +278,7 @@ const people = assignees.filter(a => a !== '(empty)').length;
 const newCount = ROWS.filter(r => r[3]==='New').length;
 const activeCount = ROWS.filter(r => r[3]==='Active').length;
 const kpis = [
-  [total, 'Total open projects'],
+  [total, 'Total assigned projects'],
   [people, 'Team members with work'],
   [newCount, 'Not started (New)'],
   [activeCount, 'In progress (Active)'],
@@ -350,7 +361,7 @@ function render(){
     return `<div class="group ${isOpen?'open':''}" data-key="${esc(a)}">
       <div class="group-head">
         <div class="left">
-          <span class="chev">▶</span>
+          <span class="chev">&#9656;</span>
           <span class="g-name">${esc(label)}</span>
         </div>
         <div class="g-badges">
@@ -371,9 +382,9 @@ function render(){
   }).join('');
 
   document.getElementById('groups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
-  document.getElementById('countNote').textContent = `Showing ${shown} of ${total} projects`;
+  document.getElementById('countNote').textContent = `Showing ${shown} of ${total} assigned projects`;
 
-  document.querySelectorAll('.group-head').forEach(h => {
+  document.querySelectorAll('#groups .group-head').forEach(h => {
     h.addEventListener('click', () => {
       const g = h.closest('.group');
       const key = g.getAttribute('data-key');
@@ -391,16 +402,145 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
 render();
 
-// ---- Roadmap (this + next quarter) ----
-const ROADMAP_ROWS = [["ATCBLD0007071", "Virtualization in Kubernetes with KubeVirt", "asd-infra-kubernetes - 10017537", "Active", "Building", "Mike Lafser", "Advanced Kubernetes for the Infrastructure", "This Quarter"], ["ATCBLD0006965", "Getting Started with Rubrik: Initial Setup and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "Diana Newman", "Getting Started with Rubrik Active Directory", "This Quarter"], ["ATCBLD0006964", "Overview of Protecting Active Directory with Rubrik", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "Diana Newman", "Getting Started with Rubrik Active Directory", "This Quarter"], ["ATCBLD0006966", "Rubrik Full Backup and Verification Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory", "This Quarter"], ["ATCBLD0006967", "Rubrik Integration Across Virtual and Cloud Platforms", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory", "This Quarter"], ["ATCBLD0006968", "Rubrik Restore Operations: Granular and Full Recovery Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory", "This Quarter"], ["ATCBLD0006933", "Functions and Return Values", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "This Quarter"], ["ATCBLD0006980", "Access Visibility", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006978", "Auto-Discovery and the Agent Inventory", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006996", "Choosing Your Model", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006990", "Code-Repository Recovery", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006989", "Recovering Data and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006997", "Rubrik Agent Cloud - Demonstration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006995", "Spotlight: Agents Built with Claude Code and Claude Co-Work", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006992", "Telemetry Sources", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006981", "The Immutable Audit Trail", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006993", "The Three Deployment Patterns", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0006974", "Why Existing Controls Fall Short", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "This Quarter"], ["ATCBLD0007218", "An Introduction to Software-Defined Networking (SDN)", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0007214", "Datastores and Provisioning: Where Virtual Machines Live", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0007215", "Modern Storage: HCI, Software-Defined Storage, and Performance Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0007219", "Securing Virtual Environments", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0007220", "Setting Up Your First Virtualization Environment", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0007216", "Virtual Networking Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0007221", "Which Hypervisor is Right For You?", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "This Quarter"], ["ATCBLD0006613", "Nokia PON Lab Update", "Infrastructure Labs (asd-infra-)", "New", "Backlog", "Mike Lafser", "Data Center", "Next Quarter"], ["ATCBLD0006924", "AQS Identity Access Management", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006923", "AWS Compute Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006925", "AWS Logging and Monitoring", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006926", "AWS Networking Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006927", "AWS Storage Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006928", "Azure Compute Fundamantals", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006930", "Azure Identity & Access Management", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006931", "Azure Management Tools", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006932", "Azure Monitoring and Logging", "asd-infra-auto - 10028991", "New", "Backlog", "John Felts", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006929", "Azure Storage Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006921", "Google Cloud - Creating Cloud Storage", "asd-infra-auto - 10028991", "New", "Backlog", "Will Robertson", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006922", "Google Cloud - Creating Virtual Machines and VPC's", "asd-infra-auto - 10028991", "New", "Backlog", "Will Robertson", "Instruqt Conversion", "Next Quarter"], ["ATCBLD0006937", "Addressing and Subnetting", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006943", "Anatomy of a Unit File", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006934", "Arrays and Parameter Expansion", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006942", "Capturing Traffic with tcpdump", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006954", "CPU and Load with vmstat and sar", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006936", "Debugging Scripts with set -x and shellcheck", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006935", "Defensive Scripting: Traps and Getopts", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006944", "Dependencies, Ordering, and Targets", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006956", "Disk I/O with iostat", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006940", "DNS Resolution and /etc/resolv.conf", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006960", "Encryption at Rest with LUKS", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006961", "How Mandatory Access Control Works", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006941", "Inspecting Connections with ss", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006947", "Linux - Broken Path", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006950", "Linux - Confined Service", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006946", "Linux - Log Rotation Tool", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006949", "Linux - Performance Investigation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006948", "Linux - Service Packaging", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006959", "LVM Snapshots", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006955", "Memory Pressure and Swap", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006953", "Persistent Journald and Log Filtering", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006958", "RAID Concepts and mdadm", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006951", "Resource Control with CGROUPS and SLICES", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006939", "Routing and the Default Gateway", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006945", "Service Types and Restart Behaivors", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006952", "Socket Activation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006938", "The IP Suite: Interfaces and Addresses", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006957", "Tuning Kernel Parameters with sysctl", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006963", "Writing a SELinux Policy", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"], ["ATCBLD0006962", "Writing an AppArmor Profile", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate", "Next Quarter"]];
-// columns: number, title, portfolio, state, phase, assignee, program, quarter
+// ---- Published in the last 2 weeks ----
+const PUBLISHED_ROWS = [["ATCBLD0007213", "Choosing a Storage Protocol for Virtualization", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007211", "Resource Management", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007212", "Storage Fundamentals for Virtualization", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007209", "Virtual Infrastructure", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007210", "Virtual Machine Files", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007217", "Virtual Network Modes: NAT, Bridged, and Host-Only", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"]];
+// columns: number, title, portfolio, state, phase, assignee, program
 
-const byPortfolio = {};
-ROADMAP_ROWS.forEach(r => {
-  const p = r[2];
-  (byPortfolio[p] = byPortfolio[p] || []).push(r);
+const byAssigneePublished = {};
+PUBLISHED_ROWS.forEach(r => {
+  const a = r[5];
+  (byAssigneePublished[a] = byAssigneePublished[a] || []).push(r);
 });
-const portfolios = Object.keys(byPortfolio).sort((a,b) => byPortfolio[b].length - byPortfolio[a].length);
+const assigneesPublished = Object.keys(byAssigneePublished).sort((a,b) => byAssigneePublished[b].length - byAssigneePublished[a].length);
+const totalPublished = PUBLISHED_ROWS.length;
+
+document.getElementById('fAssigneePublished').innerHTML += assigneesPublished.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+
+const searchPublishedEl = document.getElementById('searchPublished');
+const fAssigneePublished = document.getElementById('fAssigneePublished');
+const openStatePublished = {};
+
+function renderPublished(){
+  const q = searchPublishedEl.value.trim().toLowerCase();
+  const asg = fAssigneePublished.value;
+
+  let shown = 0;
+  const groupsHtml = assigneesPublished.filter(a => !asg || a===asg).map(a => {
+    let rows = byAssigneePublished[a];
+    rows = rows.filter(r => {
+      if (q){
+        const hay = (r[0]+' '+r[1]+' '+r[2]+' '+r[6]).toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    if (rows.length===0) return '';
+    shown += rows.length;
+    const isOpen = openStatePublished[a] !== undefined ? openStatePublished[a] : true;
+    const rowsHtml = rows.map(r => `
+      <tr>
+        <td class="num"><a href="${snUrl(r[0])}" target="_blank" rel="noopener noreferrer" title="Open ${esc(r[0])} in ServiceNow">${esc(r[0])}</a></td>
+        <td class="title">${esc(r[1])}</td>
+        <td class="portfolio">${esc(r[2])}</td>
+        <td><span class="state-badge closed">${esc(r[3])}</span></td>
+        <td class="phase">${esc(r[4])}</td>
+        <td class="program">${esc(r[6])}</td>
+      </tr>`).join('');
+    return `<div class="group ${isOpen?'open':''}" data-key="${esc(a)}">
+      <div class="group-head">
+        <div class="left">
+          <span class="chev">&#9656;</span>
+          <span class="g-name">${esc(a)}</span>
+        </div>
+        <div class="g-badges">
+          <span class="pill closed">${rows.length} published</span>
+        </div>
+        <span class="g-count">${rows.length} project${rows.length===1?'':'s'}</span>
+      </div>
+      <div class="group-body">
+        <div class="overflow-x">
+        <table>
+          <thead><tr><th>Number</th><th>Project</th><th>Portfolio</th><th>State</th><th>Phase</th><th>Program</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('publishedGroups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
+  document.getElementById('countNotePublished').textContent = `Showing ${shown} of ${totalPublished} projects published in the last 2 weeks &middot; pulled Sep 1, 2026`;
+
+  document.querySelectorAll('#publishedGroups .group-head').forEach(h => {
+    h.addEventListener('click', () => {
+      const g = h.closest('.group');
+      const key = g.getAttribute('data-key');
+      g.classList.toggle('open');
+      openStatePublished[key] = g.classList.contains('open');
+    });
+  });
+}
+
+[searchPublishedEl, fAssigneePublished].forEach(el => el.addEventListener('input', renderPublished));
+document.getElementById('resetPublishedBtn').addEventListener('click', () => {
+  searchPublishedEl.value=''; fAssigneePublished.value='';
+  renderPublished();
+});
+
+renderPublished();
+
+// ---- Roadmap (this + next 2 quarters, grouped by program) ----
+const ROADMAP_ROWS = [["ATCBLD0007071", "Virtualization in Kubernetes with KubeVirt", "asd-infra-kubernetes - 10017537", "Active", "Building", "Mike Lafser", "Advanced Kubernetes for the Infrastructure Engineer (Plus)", "2026-09-30 15:20:10"], ["ATCBLD0006964", "Overview of Protecting Active Directory with Rubrik", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "Diana Newman", "Getting Started with Rubrik Active Directory Protection", "2026-09-30 07:59:41"], ["ATCBLD0006965", "Getting Started with Rubrik: Initial Setup and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "Diana Newman", "Getting Started with Rubrik Active Directory Protection", "2026-09-30 08:00:22"], ["ATCBLD0006966", "Rubrik Full Backup and Verification Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory Protection", "2026-09-30 08:01:01"], ["ATCBLD0006967", "Rubrik Integration Across Virtual and Cloud Platforms", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory Protection", "2026-09-30 08:01:36"], ["ATCBLD0006968", "Rubrik Restore Operations: Granular and Full Recovery Explained", "asd-infra-dataprotectcyberres 10017583", "New", "Backlog", "Diana Newman", "Getting Started with Rubrik Active Directory Protection", "2026-09-30 08:02:12"], ["ATCBLD0006921", "Google Cloud - Creating Cloud Storage", "asd-infra-auto - 10028991", "New", "Backlog", "Will Robertson", "Instruqt Conversion", "2026-12-31 13:14:47"], ["ATCBLD0006922", "Google Cloud - Creating Virtual Machines and VPC's", "asd-infra-auto - 10028991", "New", "Backlog", "Will Robertson", "Instruqt Conversion", "2026-12-31 13:17:43"], ["ATCBLD0006923", "AWS Compute Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "2026-12-31 13:18:50"], ["ATCBLD0006924", "AQS Identity Access Management", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "2026-12-31 13:42:55"], ["ATCBLD0006925", "AWS Logging and Monitoring", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "2026-12-31 13:43:31"], ["ATCBLD0006926", "AWS Networking Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "2026-12-31 13:44:09"], ["ATCBLD0006927", "AWS Storage Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Terry Huber", "Instruqt Conversion", "2026-12-31 13:44:40"], ["ATCBLD0006928", "Azure Compute Fundamantals", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "2026-12-31 13:45:21"], ["ATCBLD0006929", "Azure Storage Fundamentals", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "2026-12-31 13:45:49"], ["ATCBLD0006930", "Azure Identity & Access Management", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "2026-12-31 13:46:26"], ["ATCBLD0006931", "Azure Management Tools", "asd-infra-auto - 10028991", "New", "Backlog", "Nichole Mooney-Aubry", "Instruqt Conversion", "2026-12-31 13:46:56"], ["ATCBLD0006932", "Azure Monitoring and Logging", "asd-infra-auto - 10028991", "New", "Backlog", "John Felts", "Instruqt Conversion", "2026-12-31 13:47:37"], ["ATCBLD0006933", "Functions and Return Values", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-09-30 13:49:46"], ["ATCBLD0006934", "Arrays and Parameter Expansion", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:50:30"], ["ATCBLD0006935", "Defensive Scripting: Traps and Getopts", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:51:22"], ["ATCBLD0006936", "Debugging Scripts with set -x and shellcheck", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:52:03"], ["ATCBLD0006937", "Addressing and Subnetting", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:52:36"], ["ATCBLD0006938", "The IP Suite: Interfaces and Addresses", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:53:13"], ["ATCBLD0006939", "Routing and the Default Gateway", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:54:10"], ["ATCBLD0006940", "DNS Resolution and /etc/resolv.conf", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:54:50"], ["ATCBLD0006941", "Inspecting Connections with ss", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:55:16"], ["ATCBLD0006942", "Capturing Traffic with tcpdump", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:55:52"], ["ATCBLD0006943", "Anatomy of a Unit File", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:57:15"], ["ATCBLD0006944", "Dependencies, Ordering, and Targets", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:57:49"], ["ATCBLD0006945", "Service Types and Restart Behaivors", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 13:58:16"], ["ATCBLD0006951", "Resource Control with CGROUPS and SLICES", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:42:46"], ["ATCBLD0006952", "Socket Activation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:43:15"], ["ATCBLD0006953", "Persistent Journald and Log Filtering", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:43:51"], ["ATCBLD0006954", "CPU and Load with vmstat and sar", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:44:21"], ["ATCBLD0006955", "Memory Pressure and Swap", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:44:52"], ["ATCBLD0006956", "Disk I/O with iostat", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:45:28"], ["ATCBLD0006957", "Tuning Kernel Parameters with sysctl", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:45:54"], ["ATCBLD0006946", "Linux - Log Rotation Tool", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:46:51"], ["ATCBLD0006947", "Linux - Broken Path", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:47:29"], ["ATCBLD0006948", "Linux - Service Packaging", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:48:12"], ["ATCBLD0006949", "Linux - Performance Investigation", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:48:49"], ["ATCBLD0006950", "Linux - Confined Service", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:49:28"], ["ATCBLD0006958", "RAID Concepts and mdadm", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:51:26"], ["ATCBLD0006959", "LVM Snapshots", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:52:08"], ["ATCBLD0006960", "Encryption at Rest with LUKS", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:52:40"], ["ATCBLD0006961", "How Mandatory Access Control Works", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:53:07"], ["ATCBLD0006962", "Writing an AppArmor Profile", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:53:40"], ["ATCBLD0006963", "Writing a SELinux Policy", "asd-infra-serverinfra 10017540", "New", "Backlog", "Will Robertson", "Linux Intermediate (Int/Plus)", "2026-12-31 14:54:13"], ["ATCBLD0007254", "Cloud Resources: The Importance of Cost Management", "asd-infra-cloud - 10020770", "New", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot", "2026-12-31 11:14:58"], ["ATCBLD0007255", "CoPilot: Tips and Tricks", "asd-infra-cloud - 10020770", "Active", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot", "2026-12-31 11:16:01"], ["ATCBLD0007256", "Azure Cost Management Dashboard", "asd-infra-cloud - 10020770", "Active", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot", "2026-12-31 11:16:49"], ["ATCBLD0007257", "Azure CoPilot Cost Optimization Walkthrough", "asd-infra-cloud - 10020770", "Active", "Building", "Nichole Mooney-Aubry", "Operating Azure Cost with Copilot", "2026-12-31 11:17:36"], ["ATCBLD0006974", "Why Existing Controls Fall Short", "asd-infra-dataprotectcyberres 10017583", "New", "Building", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:38:42"], ["ATCBLD0006978", "Auto-Discovery and the Agent Inventory", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:41:14"], ["ATCBLD0006980", "Access Visibility", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:42:55"], ["ATCBLD0006981", "The Immutable Audit Trail", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:43:43"], ["ATCBLD0006989", "Recovering Data and Configuration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:47:55"], ["ATCBLD0006990", "Code-Repository Recovery", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:48:27"], ["ATCBLD0006992", "Telemetry Sources", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:49:27"], ["ATCBLD0006993", "The Three Deployment Patterns", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:50:02"], ["ATCBLD0006995", "Spotlight: Agents Built with Claude Code and Claude Co-Work", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:50:44"], ["ATCBLD0006996", "Choosing Your Model", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:51:14"], ["ATCBLD0006997", "Rubrik Agent Cloud - Demonstration", "asd-infra-dataprotectcyberres 10017583", "New", "Scoping", "John Felts", "Rubrik Agent Cloud (Int/Plus)", "2026-09-30 09:51:54"], ["ATCBLD0006565", "SCE (Phase 2) Tanzu and VMware AVI Lab", "asd-infra-hypervisor - 100017452", "Active", "Scoping", "John Felts", "SoCal Edison - Tanzu and NSX Training - PS (Service) - WWT Digital Training", "2027-03-31 08:00:00"], ["ATCBLD0007214", "Datastores and Provisioning: Where Virtual Machines Live", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 09:28:09"], ["ATCBLD0007215", "Modern Storage: HCI, Software-Defined Storage, and Performance Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 09:29:08"], ["ATCBLD0007216", "Virtual Networking Basics", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 09:29:57"], ["ATCBLD0007218", "An Introduction to Software-Defined Networking (SDN)", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 09:32:48"], ["ATCBLD0007220", "Setting Up Your First Virtualization Environment", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 09:34:40"], ["ATCBLD0007221", "Which Hypervisor is Right For You?", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 09:35:18"], ["ATCBLD0007219", "Securing Virtual Environments", "asd-infra-hypervisor - 100017452", "Active", "Building", "Graci Badami", "Virtualization Fundamentals", "2026-09-30 12:47:17"]];
+// columns: number, title, portfolio, state, phase, assignee, program, roadmap_date
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function parseDate(s){
+  // "YYYY-MM-DD HH:MM:SS" -> Date (treat as plain calendar date, ignore TZ)
+  const [datePart] = s.split(' ');
+  const [y,m,day] = datePart.split('-').map(Number);
+  return new Date(y, m-1, day);
+}
+function formatDate(s){
+  const dt = parseDate(s);
+  return MONTHS[dt.getMonth()] + ' ' + dt.getDate() + ', ' + dt.getFullYear();
+}
+function quarterOf(dt){
+  return { y: dt.getFullYear(), q: Math.floor(dt.getMonth()/3)+1 };
+}
+function quarterKey(qq){ return qq.y*10 + qq.q; }
+function quarterLabel(qq){ return 'Q'+qq.q+' '+qq.y; }
+
+// Determine the distinct quarters present, sorted chronologically, and label them
+// relative to today (this / next / next-next) using badge classes.
+const quarterSet = new Map();
+ROADMAP_ROWS.forEach(r => {
+  const qq = quarterOf(parseDate(r[7]));
+  quarterSet.set(quarterKey(qq), qq);
+});
+const sortedQuarters = [...quarterSet.values()].sort((a,b) => quarterKey(a)-quarterKey(b));
+const quarterClassByKey = {};
+const quarterLabelByKey = {};
+const badgeClasses = ['thisq','nextq','futq'];
+sortedQuarters.forEach((qq, i) => {
+  quarterClassByKey[quarterKey(qq)] = badgeClasses[Math.min(i, badgeClasses.length-1)];
+  quarterLabelByKey[quarterKey(qq)] = quarterLabel(qq);
+});
+function rowQuarterKey(r){ return quarterKey(quarterOf(parseDate(r[7]))); }
+function rowQuarterClass(r){ return quarterClassByKey[rowQuarterKey(r)] || 'nextq'; }
+function rowQuarterLabel(r){ return quarterLabelByKey[rowQuarterKey(r)] || ''; }
+
+document.getElementById('fQuarterRoadmap').innerHTML += sortedQuarters.map(qq =>
+  `<option value="${quarterKey(qq)}">${esc(quarterLabel(qq))}</option>`
+).join('');
+
+const byProgram = {};
+ROADMAP_ROWS.forEach(r => {
+  const p = r[6];
+  (byProgram[p] = byProgram[p] || []).push(r);
+});
+// sort each program's rows chronologically by roadmap date
+Object.values(byProgram).forEach(rows => rows.sort((a,b) => parseDate(a[7]) - parseDate(b[7])));
+const programs = Object.keys(byProgram).sort((a,b) => byProgram[b].length - byProgram[a].length);
 const totalRoadmap = ROADMAP_ROWS.length;
 const roadmapAssignees = [...new Set(ROADMAP_ROWS.map(r=>r[5]))].sort();
 
@@ -411,56 +551,58 @@ const fAssigneeRoadmap = document.getElementById('fAssigneeRoadmap');
 const fQuarterRoadmap = document.getElementById('fQuarterRoadmap');
 const openStateRoadmap = {};
 
-function quarterClass(q){ return q==='This Quarter' ? 'thisq' : 'nextq'; }
-
 function renderRoadmap(){
   const q = searchRoadmapEl.value.trim().toLowerCase();
   const asg = fAssigneeRoadmap.value;
   const qtr = fQuarterRoadmap.value;
 
   let shown = 0;
-  const groupsHtml = portfolios.map(p => {
-    let rows = byPortfolio[p];
+  const groupsHtml = programs.map(p => {
+    let rows = byProgram[p];
     rows = rows.filter(r => {
       if (asg && r[5]!==asg) return false;
-      if (qtr && r[7]!==qtr) return false;
+      if (qtr && String(rowQuarterKey(r))!==qtr) return false;
       if (q){
-        const hay = (r[0]+' '+r[1]+' '+r[6]+' '+r[5]).toLowerCase();
+        const hay = (r[0]+' '+r[1]+' '+r[2]+' '+r[5]).toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
     if (rows.length===0) return '';
     shown += rows.length;
-    const nThis = rows.filter(r=>r[7]==='This Quarter').length;
-    const nNext = rows.length - nThis;
+    const badgeCounts = {};
+    rows.forEach(r => { const k = rowQuarterLabel(r); badgeCounts[k] = (badgeCounts[k]||0)+1; });
+    const badgesHtml = sortedQuarters.map(qq => {
+      const lbl = quarterLabel(qq);
+      const n = badgeCounts[lbl];
+      if (!n) return '';
+      return `<span class="pill ${quarterClassByKey[quarterKey(qq)]}">${n} ${esc(lbl)}</span>`;
+    }).join('');
     const isOpen = openStateRoadmap[p] !== undefined ? openStateRoadmap[p] : false;
     const rowsHtml = rows.map(r => `
       <tr>
         <td class="num"><a href="${snUrl(r[0])}" target="_blank" rel="noopener noreferrer" title="Open ${esc(r[0])} in ServiceNow">${esc(r[0])}</a></td>
         <td class="title">${esc(r[1])}</td>
-        <td class="program">${esc(r[6])}</td>
+        <td class="portfolio">${esc(r[2])}</td>
         <td><span class="state-badge ${r[3]==='New'?'new':'active'}">${esc(r[3])}</span></td>
-        <td class="phase">${esc(r[4])}</td>
         <td class="phase">${esc(r[5])}</td>
-        <td><span class="state-badge ${quarterClass(r[7])}">${esc(r[7])}</span></td>
+        <td class="date">${esc(formatDate(r[7]))} <span class="state-badge ${rowQuarterClass(r)}">${esc(rowQuarterLabel(r))}</span></td>
       </tr>`).join('');
     return `<div class="group ${isOpen?'open':''}" data-key="${esc(p)}">
       <div class="group-head">
         <div class="left">
-          <span class="chev">▶</span>
+          <span class="chev">&#9656;</span>
           <span class="g-name">${esc(p)}</span>
         </div>
         <div class="g-badges">
-          ${nThis?`<span class="pill thisq">${nThis} this qtr</span>`:''}
-          ${nNext?`<span class="pill nextq">${nNext} next qtr</span>`:''}
+          ${badgesHtml}
         </div>
         <span class="g-count">${rows.length} project${rows.length===1?'':'s'}</span>
       </div>
       <div class="group-body">
         <div class="overflow-x">
         <table>
-          <thead><tr><th>Number</th><th>Project</th><th>Program</th><th>State</th><th>Phase</th><th>Assignee</th><th>Quarter</th></tr></thead>
+          <thead><tr><th>Number</th><th>Project</th><th>Portfolio</th><th>State</th><th>Assignee</th><th>Roadmap Date</th></tr></thead>
           <tbody>${rowsHtml}</tbody>
         </table>
         </div>
@@ -469,7 +611,7 @@ function renderRoadmap(){
   }).join('');
 
   document.getElementById('roadmapGroups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
-  document.getElementById('countNoteRoadmap').textContent = `Showing ${shown} of ${totalRoadmap} roadmap projects · pulled Aug 31, 2026`;
+  document.getElementById('countNoteRoadmap').textContent = `Showing ${shown} of ${totalRoadmap} roadmap projects &middot; pulled Sep 1, 2026`;
 
   document.querySelectorAll('#roadmapGroups .group-head').forEach(h => {
     h.addEventListener('click', () => {
@@ -488,91 +630,4 @@ document.getElementById('resetRoadmapBtn').addEventListener('click', () => {
 });
 
 renderRoadmap();
-
-// ---- Closed since last quarter ----
-const CLOSED_ROWS = [["ATCBLD0007213", "Choosing a Storage Protocol for Virtualization", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007211", "Resource Management", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007212", "Storage Fundamentals for Virtualization", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007209", "Virtual Infrastructure", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007210", "Virtual Machine Files", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0007217", "Virtual Network Modes: NAT, Bridged, and Host-Only", "asd-infra-hypervisor - 100017452", "Closed Complete", "Published", "Graci Badami", "Virtualization Fundamentals"], ["ATCBLD0006984", "Authoring an Access Policy", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006983", "Governing Inputs and Outputs", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007136", "Introducing Microsoft Agent 365: The Control Plane for Enterprise AI Agents", "asd-infra-serverinfra 10017540", "Closed Complete", "Published", "John Felts", "The Frontier Suite Explained: E7, Copilot Cowork & Agent 365"], ["ATCBLD0007061", "Introducing Rubrik Agent Cloud", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007134", "Microsoft 365 E7: The Frontier Suite", "asd-infra-serverinfra 10017540", "Closed Complete", "Published", "John Felts", "The Frontier Suite Explained: E7, Copilot Cowork & Agent 365"], ["ATCBLD0006918", "Microsoft Co-Pilot and Surface - Better Together", "asd-infra-cloud - 10020770", "Closed Complete", "Published", "John Felts", "Microsoft Surface and Secure AI - Better Together"], ["ATCBLD0007135", "Microsoft Copilot Cowork: What Executives Should Know", "asd-infra-serverinfra 10017540", "Closed Complete", "Published", "John Felts", "The Frontier Suite Explained: E7, Copilot Cowork & Agent 365"], ["ATCBLD0006979", "Risk Profiling in Rubrik Agent Cloud", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006919", "Security Starts in Silicon - Why Microsoft Surface is the Future of Endpoint Management", "asd-infra-cloud - 10020770", "Closed Complete", "Published", "John Felts", "Microsoft Surface and Secure AI - Better Together"], ["ATCBLD0006975", "The Control-Layer Model", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006973", "The New Risk Surface", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006976", "The Three Pillars", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0007062", "What Is Rubrik Agent Cloud?", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006982", "What Policy-Based Governance Means for Agents", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006977", "Where Rubrik Agent Cloud Fits In The Rubrik Story", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"], ["ATCBLD0006972", "Why Agent Governance Matters - The Rise of Autonomous Agents", "asd-infra-dataprotectcyberres 10017583", "Closed Complete", "Published", "John Felts", "Rubrik Agent Cloud (Int/Plus)"]];
-// columns: number, title, portfolio, state, phase, assignee, program
-
-const byAssigneeClosed = {};
-CLOSED_ROWS.forEach(r => {
-  const a = r[5];
-  (byAssigneeClosed[a] = byAssigneeClosed[a] || []).push(r);
-});
-const assigneesClosed = Object.keys(byAssigneeClosed).sort((a,b) => byAssigneeClosed[b].length - byAssigneeClosed[a].length);
-const totalClosed = CLOSED_ROWS.length;
-
-document.getElementById('fAssigneeClosed').innerHTML += assigneesClosed.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
-
-const searchClosedEl = document.getElementById('searchClosed');
-const fAssigneeClosed = document.getElementById('fAssigneeClosed');
-const openStateClosed = {};
-
-function renderClosed(){
-  const q = searchClosedEl.value.trim().toLowerCase();
-  const asg = fAssigneeClosed.value;
-
-  let shown = 0;
-  const groupsHtml = assigneesClosed.filter(a => !asg || a===asg).map(a => {
-    let rows = byAssigneeClosed[a];
-    rows = rows.filter(r => {
-      if (q){
-        const hay = (r[0]+' '+r[1]+' '+r[2]+' '+r[6]).toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-    if (rows.length===0) return '';
-    shown += rows.length;
-    const isOpen = openStateClosed[a] !== undefined ? openStateClosed[a] : true;
-    const rowsHtml = rows.map(r => `
-      <tr>
-        <td class="num"><a href="${snUrl(r[0])}" target="_blank" rel="noopener noreferrer" title="Open ${esc(r[0])} in ServiceNow">${esc(r[0])}</a></td>
-        <td class="title">${esc(r[1])}</td>
-        <td class="portfolio">${esc(r[2])}</td>
-        <td><span class="state-badge closed">${esc(r[3])}</span></td>
-        <td class="phase">${esc(r[4])}</td>
-        <td class="program">${esc(r[6])}</td>
-      </tr>`).join('');
-    return `<div class="group ${isOpen?'open':''}" data-key="${esc(a)}">
-      <div class="group-head">
-        <div class="left">
-          <span class="chev">▶</span>
-          <span class="g-name">${esc(a)}</span>
-        </div>
-        <div class="g-badges">
-          <span class="pill closed">${rows.length} closed</span>
-        </div>
-        <span class="g-count">${rows.length} project${rows.length===1?'':'s'}</span>
-      </div>
-      <div class="group-body">
-        <div class="overflow-x">
-        <table>
-          <thead><tr><th>Number</th><th>Project</th><th>Portfolio</th><th>State</th><th>Phase</th><th>Program</th></tr></thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('closedGroups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
-  document.getElementById('countNoteClosed').textContent = `Showing ${shown} of ${totalClosed} closed projects · pulled Aug 31, 2026`;
-
-  document.querySelectorAll('#closedGroups .group-head').forEach(h => {
-    h.addEventListener('click', () => {
-      const g = h.closest('.group');
-      const key = g.getAttribute('data-key');
-      g.classList.toggle('open');
-      openStateClosed[key] = g.classList.contains('open');
-    });
-  });
-}
-
-[searchClosedEl, fAssigneeClosed].forEach(el => el.addEventListener('input', renderClosed));
-document.getElementById('resetClosedBtn').addEventListener('click', () => {
-  searchClosedEl.value=''; fAssigneeClosed.value='';
-  renderClosed();
-});
-
-renderClosed();
 </script>
