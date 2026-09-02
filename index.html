@@ -449,7 +449,7 @@ function renderPublished(){
     });
     if (rows.length===0) return '';
     shown += rows.length;
-    const isOpen = openStatePublished[a] !== undefined ? openStatePublished[a] : true;
+    const isOpen = openStatePublished[a] !== undefined ? openStatePublished[a] : false;
     const rowsHtml = rows.map(r => `
       <tr>
         <td class="num"><a href="${snUrl(r[0])}" target="_blank" rel="noopener noreferrer" title="Open ${esc(r[0])} in ServiceNow">${esc(r[0])}</a></td>
