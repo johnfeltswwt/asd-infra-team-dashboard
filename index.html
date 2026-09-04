@@ -650,7 +650,12 @@ renderRoadmap();
 
 // ---- Upcoming Out of Office ----
 // Manually maintained: [Name, "Out From", "Out Until", "Notes"]. Dates as "YYYY-MM-DD" or free text.
-const OOO_ROWS = [];
+const OOO_ROWS = [
+  ["Everyone", "Sep 7, 2026", "Sep 7, 2026", "Labor Day"],
+  ["John Felts", "Sep 10, 2026", "Sep 15, 2026", "PTO"],
+  ["Everyone", "Sep 21, 2026", "Sep 23, 2026", "ATC BBQ"],
+  ["Terry Huber", "Sep 28, 2026", "Sep 29, 2026", ""]
+];
 
 function renderOOO(){
   const tbody = document.getElementById('oooBody');
