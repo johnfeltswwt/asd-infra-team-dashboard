@@ -557,7 +557,12 @@ ROADMAP_ROWS.forEach(r => {
 });
 // sort each program's rows chronologically by roadmap date
 Object.values(byProgram).forEach(rows => rows.sort((a,b) => parseDate(a[7]) - parseDate(b[7])));
-const programs = Object.keys(byProgram).sort((a,b) => byProgram[b].length - byProgram[a].length);
+// order the program groups themselves chronologically, by each group's earliest roadmap date
+const programMinDate = {};
+Object.keys(byProgram).forEach(p => {
+  programMinDate[p] = Math.min(...byProgram[p].map(r => parseDate(r[7]).getTime()));
+});
+const programs = Object.keys(byProgram).sort((a,b) => programMinDate[a] - programMinDate[b]);
 const totalRoadmap = ROADMAP_ROWS.length;
 const roadmapAssignees = [...new Set(ROADMAP_ROWS.map(r=>r[5]))].sort();
 
