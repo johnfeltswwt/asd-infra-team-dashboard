@@ -675,14 +675,22 @@ function renderOOO(){
   const tbody = document.getElementById('oooBody');
   const empty = document.getElementById('oooEmpty');
   const table = document.getElementById('oooTable');
-  if (!OOO_ROWS.length){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const rows = OOO_ROWS.filter(r => {
+    const until = new Date(r[2]);
+    if (isNaN(until.getTime())) return true; // unparseable date: show rather than hide
+    until.setHours(0,0,0,0);
+    return until >= today;
+  });
+  if (!rows.length){
     table.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
   table.style.display = '';
   empty.style.display = 'none';
-  tbody.innerHTML = OOO_ROWS.map(r => `
+  tbody.innerHTML = rows.map(r => `
     <tr>
       <td>${esc(r[0])}</td>
       <td class="date">${esc(r[1])}</td>
