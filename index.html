@@ -259,7 +259,7 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     </div>
     <div class="chart-card overflow-x">
       <table id="oooTable">
-        <thead><tr><th>Name</th><th>Out From</th><th>Out Until</th><th>Notes</th></tr></thead>
+        <thead><tr><th>Name</th><th>Out From</th><th>Out Through</th><th>Notes</th></tr></thead>
         <tbody id="oooBody"></tbody>
       </table>
       <div id="oooEmpty" class="empty-note" style="display:none;">No upcoming out-of-office entries yet.</div>
@@ -654,7 +654,7 @@ document.getElementById('resetRoadmapBtn').addEventListener('click', () => {
 renderRoadmap();
 
 // ---- Upcoming Out of Office ----
-// Manually maintained: [Name, "Out From", "Out Until", "Notes"]. Dates as "YYYY-MM-DD" or free text.
+// Manually maintained: [Name, "Out From", "Out Through", "Notes"]. Dates as "YYYY-MM-DD" or free text.
 const OOO_ROWS = [
   ["Mike Lafser", "Sep 4, 2026", "Sep 4, 2026", "PTO"],
   ["Everyone", "Sep 7, 2026", "Sep 7, 2026", "Labor Day"],
