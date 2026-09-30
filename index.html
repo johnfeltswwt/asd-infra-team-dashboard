@@ -180,6 +180,7 @@ td.date{color:var(--text);white-space:nowrap;font-size:12.5px;}
 .overflow-x{overflow-x:auto;}
 .empty-note{padding:24px;text-align:center;color:var(--text-faint);font-size:13px;}
 footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;}
+.ps-form{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--border);}.ps-form input{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 12px;font-size:13.5px;outline:none;min-width:160px;}.ps-form input:focus{border-color:var(--accent);}.ps-form #psSubject{flex:2;}.ps-form #psNotes{flex:3;}.ps-form button,.ps-del{border-radius:10px;font-size:12.5px;cursor:pointer;}.ps-form button{background:var(--accent);border:1px solid var(--accent);color:#fff;padding:9px 16px;}.ps-del{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;}.ps-del:hover{color:var(--text);border-color:var(--text-dim);}
 </style>
 
 <div class="wrap">
@@ -266,7 +267,19 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     </div>
   </section>
 
-  <footer>Source: ServiceNow reports ASD-INFRA-DCC-Assignments, ASD-Infra-DCC-closedsincelastqtr, and ASD-INFRA-DCC-Roadmap (table: ATCBLD Project). Closed-this-year filter: State = Closed Complete; end date within 2026; ASD-Infra portfolio and team-hierarchy scope. Currently-assigned filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; assigned to John Felts' manager hierarchy or Justin Hoppe. Roadmap filter: State in New/Active; Phase not Published; Program not empty; roadmap date within this quarter or next quarter; same portfolio/hierarchy scope.</footer>
+  <section id="potentialSubjects">
+<div class="section-head">
+<h2>Potential Content Subjects</h2>
+<span class="hint">Manually maintained by John Felts &mdash; add or remove topics below (saved in this browser)</span>
+</div>
+<div class="chart-card overflow-x" style="padding:0;">
+<div class="ps-form"><input type="text" id="psSubject" placeholder="Subject…"><input type="text" id="psNotes" placeholder="Notes (optional)…"><button id="psAdd" type="button">Add</button></div>
+<table id="psTable"><thead><tr><th>Subject</th><th>Notes</th><th style="width:1%"></th></tr></thead><tbody id="psBody"></tbody></table>
+<div id="psEmpty" class="empty-note" style="display:none;">No potential subjects yet. Add one above.</div>
+</div>
+</section>
+
+<footer>Source: ServiceNow reports ASD-INFRA-DCC-Assignments, ASD-Infra-DCC-closedsincelastqtr, and ASD-INFRA-DCC-Roadmap (table: ATCBLD Project). Closed-this-year filter: State = Closed Complete; end date within 2026; ASD-Infra portfolio and team-hierarchy scope. Currently-assigned filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; assigned to John Felts' manager hierarchy or Justin Hoppe. Roadmap filter: State in New/Active; Phase not Published; Program not empty; roadmap date within this quarter or next quarter; same portfolio/hierarchy scope.</footer>
 </div>
 
 <script>
@@ -707,4 +720,22 @@ function renderOOO(){
     </tr>`).join('');
 }
 renderOOO();
+
+(function(){
+var KEY="asdInfraPotentialSubjects";var list=[];
+try{list=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(list))list=[];}catch(e){list=[];}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(list));}catch(e){}}
+function e2(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function render(){
+var b=document.getElementById("psBody");
+b.innerHTML=list.map(function(x,i){return "<tr><td>"+e2(x.s)+"</td><td class=\"program\">"+e2(x.n)+"</td><td><button type=\"button\" class=\"ps-del\" data-i=\""+i+"\" title=\"Remove\">Remove</button></td></tr>";}).join("");
+document.getElementById("psEmpty").style.display=list.length?"none":"block";
+document.getElementById("psTable").style.display=list.length?"table":"none";
+}
+function add(){var s=document.getElementById("psSubject"),n=document.getElementById("psNotes");var v=s.value.trim();if(!v){s.focus();return;}list.push({s:v,n:n.value.trim()});save();s.value="";n.value="";render();s.focus();}
+document.getElementById("psAdd").addEventListener("click",add);
+["psSubject","psNotes"].forEach(function(id){document.getElementById(id).addEventListener("keydown",function(ev){if(ev.key==="Enter")add();});});
+document.getElementById("psBody").addEventListener("click",function(ev){var d=ev.target.closest(".ps-del");if(!d)return;list.splice(+d.getAttribute("data-i"),1);save();render();});
+render();
+})();
 </script>
