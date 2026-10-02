@@ -268,16 +268,18 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
   </section>
 
   <section id="potentialSubjects">
-<div class="section-head">
-<h2>Potential Content Subjects</h2>
-<span class="hint">Manually maintained by John Felts &mdash; add or remove topics below; entries are carried forward on each data refresh</span>
-</div>
-<div class="chart-card overflow-x" style="padding:0;">
-<div class="ps-form"><input type="text" id="psSubject" placeholder="Subject…"><input type="text" id="psNotes" placeholder="Notes (optional)…"><button id="psAdd" type="button">Add</button></div>
-<table id="psTable"><thead><tr><th>Subject</th><th>Notes</th><th style="width:1%"></th></tr></thead><tbody id="psBody"></tbody></table>
-<div id="psEmpty" class="empty-note" style="display:none;">No potential subjects yet. Add one above.</div>
-</div>
-</section>
+    <div class="section-head">
+      <h2>Potential Content Subjects</h2>
+      <span class="hint">Manually maintained by John Felts &mdash; not sourced from ServiceNow</span>
+    </div>
+    <div class="chart-card overflow-x">
+      <table id="psTable">
+        <thead><tr><th>Subject</th><th>Notes</th></tr></thead>
+        <tbody id="psBody"></tbody>
+      </table>
+      <div id="psEmpty" class="empty-note" style="display:none;">No potential content subjects yet.</div>
+    </div>
+  </section>
 
 <footer>Source: ServiceNow reports ASD-INFRA-DCC-Assignments, ASD-Infra-DCC-closedsincelastqtr, and ASD-INFRA-DCC-Roadmap (table: ATCBLD Project). Closed-this-year filter: State = Closed Complete; end date within 2026; ASD-Infra portfolio and team-hierarchy scope. Currently-assigned filter: Portfolio starts with the ASD-Infra portfolios; State not in Closed Complete / Closed Incomplete; assigned to John Felts' manager hierarchy or Justin Hoppe. Roadmap filter: State in New/Active; Phase in Backlog/Scoping/Building/Review/Support; Program not empty; roadmap date within this quarter or next quarter; assigned to a named list of the nine team members.</footer>
 </div>
@@ -721,28 +723,29 @@ function renderOOO(){
 }
 renderOOO();
 
-(function(){
-// Saved entries carried forward on each data refresh: [{s:subject, n:notes}]
-const PS_SEED = [{"s": "VCF9", "n": "xAPI only"}, {"s": "Cohesity+Cyera", "n": "Data Protection + Security Play"}];
-var KEY="asdInfraPotentialSubjects";var RKEY=KEY+"_removed";var list=null;var removed=[];
-try{list=JSON.parse(localStorage.getItem(KEY));}catch(e){list=null;}
-try{removed=JSON.parse(localStorage.getItem(RKEY)||"[]");if(!Array.isArray(removed))removed=[];}catch(e){removed=[];}
-if(!Array.isArray(list))list=[];
-function k(x){return String(x.s||"").trim().toLowerCase();}
-PS_SEED.forEach(function(x){if(!list.some(function(y){return k(y)===k(x);})&&removed.indexOf(k(x))<0)list.push({s:x.s,n:x.n||""});});
-function save(){try{localStorage.setItem(KEY,JSON.stringify(list));localStorage.setItem(RKEY,JSON.stringify(removed));}catch(e){}}
-save();
-function e2(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-function render(){
-var b=document.getElementById("psBody");
-b.innerHTML=list.map(function(x,i){return "<tr><td>"+e2(x.s)+"</td><td class=\"program\">"+e2(x.n)+"</td><td><button type=\"button\" class=\"ps-del\" data-i=\""+i+"\" title=\"Remove\">Remove</button></td></tr>";}).join("");
-document.getElementById("psEmpty").style.display=list.length?"none":"block";
-document.getElementById("psTable").style.display=list.length?"table":"none";
+// ---- Potential Content Subjects ----
+// Manually maintained: [Subject, "Notes"]. Entries stay until removed from this list.
+const PS_ROWS = [
+  ["VCF9", "xAPI only"],
+  ["Cohesity+Cyera", "Data Protection + Security Play"]
+];
+
+function renderPS(){
+  const tbody = document.getElementById('psBody');
+  const empty = document.getElementById('psEmpty');
+  const table = document.getElementById('psTable');
+  if (!PS_ROWS.length){
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  table.style.display = '';
+  empty.style.display = 'none';
+  tbody.innerHTML = PS_ROWS.map(r => `
+    <tr>
+      <td>${esc(r[0])}</td>
+      <td>${esc(r[1]||'')}</td>
+    </tr>`).join('');
 }
-function add(){var s=document.getElementById("psSubject"),n=document.getElementById("psNotes");var v=s.value.trim();if(!v){s.focus();return;}list.push({s:v,n:n.value.trim()});removed=removed.filter(function(r){return r!==v.toLowerCase();});save();s.value="";n.value="";render();s.focus();}
-document.getElementById("psAdd").addEventListener("click",add);
-["psSubject","psNotes"].forEach(function(id){document.getElementById(id).addEventListener("keydown",function(ev){if(ev.key==="Enter")add();});});
-document.getElementById("psBody").addEventListener("click",function(ev){var d=ev.target.closest(".ps-del");if(!d)return;var gone=list.splice(+d.getAttribute("data-i"),1)[0];if(gone&&removed.indexOf(k(gone))<0)removed.push(k(gone));save();render();});
-render();
-})();
+renderPS();
 </script>
