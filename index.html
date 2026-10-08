@@ -189,7 +189,7 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
       <h1>ASD Infra Team Workload</h1>
       <div class="subtitle">Content pipeline for John Felts' ASD Infra team — everything closed this year, everything currently assigned, and the roadmap ahead. Pulled from the <strong>ASD-INFRA-DCC-Assignments</strong>, <strong>ASD-Infra-DCC-closedsincelastqtr</strong>, and <strong>ASD-INFRA-DCC-Roadmap</strong> ServiceNow reports.</div>
     </div>
-    <div class="source-tag">39 assigned &middot; 159 closed this year &middot; 43 on roadmap &middot; pulled Oct 7, 2026</div>
+    <div class="source-tag">39 assigned &middot; 159 closed this year &middot; 43 on roadmap &middot; pulled Oct 8, 2026</div>
   </header>
 
   <section>
@@ -512,7 +512,7 @@ function renderPublished(){
   }).join('');
 
   document.getElementById('publishedGroups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
-  document.getElementById('countNotePublished').textContent = `Showing ${shown} of ${totalPublished} projects closed in 2026 · pulled Oct 7, 2026`;
+  document.getElementById('countNotePublished').textContent = `Showing ${shown} of ${totalPublished} projects closed in 2026 · pulled Oct 8, 2026`;
 
   document.querySelectorAll('#publishedGroups .group-head').forEach(h => {
     h.addEventListener('click', () => {
@@ -648,7 +648,7 @@ function renderRoadmap(){
   }).join('');
 
   document.getElementById('roadmapGroups').innerHTML = groupsHtml || '<div class="empty-note">No projects match these filters.</div>';
-  document.getElementById('countNoteRoadmap').textContent = `Showing ${shown} of ${totalRoadmap} roadmap projects · pulled Oct 7, 2026`;
+  document.getElementById('countNoteRoadmap').textContent = `Showing ${shown} of ${totalRoadmap} roadmap projects · pulled Oct 8, 2026`;
 
   document.querySelectorAll('#roadmapGroups .group-head').forEach(h => {
     h.addEventListener('click', () => {
