@@ -191,10 +191,76 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
 .chg-none{color:var(--text-faint);font-size:12.5px;}
 .pill.warn{background:var(--state-warn-bg);color:var(--state-warn);}
 .asof{display:flex;align-items:center;gap:10px;background:var(--accent-dim);color:var(--accent-text);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:20px;font-size:13.5px;font-weight:600;}.asof .dot{width:8px;height:8px;border-radius:50%;background:var(--state-active);flex:none;}.asof .sub{font-weight:400;color:var(--text-dim);font-size:12.5px;}
+
+html{scroll-behavior:smooth;}
+section{scroll-margin-top:64px;}
+.jump{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:0 0 16px;background:var(--bg);border-bottom:1px solid var(--border);scrollbar-width:none;}
+.jump::-webkit-scrollbar{display:none;}
+.jump a{flex:none;font-size:12.5px;color:var(--text-dim);text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid transparent;white-space:nowrap;}
+.jump a:hover{color:var(--text);background:var(--surface-2);}
+.jump a.on{color:var(--accent-text);background:var(--accent-dim);border-color:var(--border);}
+.outnow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;background:var(--state-warn-bg);color:var(--state-warn);border:1px solid var(--border);border-radius:var(--radius);padding:9px 16px;margin-bottom:16px;font-size:13px;}
+.outnow b{font-weight:600;}
+.outnow .sep{opacity:.45;}
+tr.ooo-now td{background:var(--state-warn-bg);}
+tr.ooo-soon td:first-child{box-shadow:inset 3px 0 0 var(--state-warn);}
+.fold{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;}
+.fold.alert{border-color:var(--state-warn);}
+.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;}
+.fold>summary::-webkit-details-marker{display:none;}
+.fold>summary::before{content:"\25B8";color:var(--text-faint);font-size:11px;transition:transform .15s ease;}
+.fold[open]>summary::before{transform:rotate(90deg);}
+.fold>summary h2{font-size:15px;margin:0;font-weight:600;}
+.fold>summary .hint{font-size:12px;color:var(--text-faint);margin-left:auto;}
+.fold-body{border-top:1px solid var(--border);}
+.dq-list{padding:12px 16px;display:grid;gap:8px;}
+.dq-item{font-size:13px;}
+.dq-item .why{display:block;font-size:12px;color:var(--text-faint);margin-top:2px;}
+.dq-ok{padding:14px 16px;color:var(--state-active);font-size:13px;}
+.tp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:16px;}
+.tp-kpis .kpi{box-shadow:none;background:var(--surface-2);}
+.kpi .delta{font-size:11.5px;margin-top:4px;color:var(--text-faint);}
+.kpi .delta.up{color:var(--state-active);}
+.kpi .delta.down{color:var(--state-warn);}
+.tp-chart{padding:4px 16px 8px;}
+.tp-chart svg{width:100%;height:auto;display:block;}
+.tp-chart text{fill:var(--text-faint);font-size:11px;font-family:inherit;}
+.tp-sub{padding:2px 16px 14px;}
+.tp-sub h3{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-faint);margin:8px 0 4px;font-weight:600;}
+.rep-link{font-size:12px;color:var(--accent-text);text-decoration:none;margin-left:10px;}
+.rep-link:hover{text-decoration:underline;}
+@media (max-width:640px){
+  body{padding:16px 12px 48px;}
+  h1{font-size:20px;}
+  .source-tag{white-space:normal;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .bar-row{grid-template-columns:96px 1fr 30px;}
+  table{font-size:12px;}
+  thead th,tbody td{padding:7px 10px;}
+  td.title{max-width:220px;}
+  .group-head{padding:10px 12px;}
+  .asof{flex-wrap:wrap;}
+  .fold>summary .hint{margin-left:0;width:100%;}
+}
+@media print{
+  body{background:#fff;color:#000;padding:0;}
+  .jump,.controls,.reset,.rep-link,.ps-form,.ps-del{display:none !important;}
+  .group-body{display:block !important;}
+  .fold:not([open])>.fold-body{display:block;}
+  .fold>summary::before{display:none;}
+  .kpi,.group,.chart-card,.fold{box-shadow:none;break-inside:avoid;}
+  .asof,.outnow{border:1px solid #999;}
+  section{margin-bottom:18px;}
+  a{color:inherit;text-decoration:none;}
+}
 </style>
 
 <div class="wrap">
   <div class="asof" id="asOf" hidden><span class="dot"></span><span id="asOfText"></span><span class="sub">ServiceNow reports ASD-INFRA-DCC-Assignments, closed-this-year and Roadmap</span></div>
+  <nav class="jump" id="jump" aria-label="Sections">
+    <a href="#changes">Changes</a><a href="#dataQuality">Data quality</a><a href="#throughput">Throughput</a><a href="#closedSection">Closed</a><a href="#workload">Workload</a><a href="#assigned">Assigned</a><a href="#roadmap">Roadmap</a><a href="#ooo">Out of office</a><a href="#potentialSubjects">Subjects</a>
+  </nav>
+  <div class="outnow" id="outNow" hidden></div>
   <header class="top">
     <div>
       <h1>ASD Infra Team Workload</h1>
@@ -203,7 +269,29 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     <div class="source-tag">34 assigned &middot; 179 closed this year &middot; 38 on roadmap &middot; pulled Oct 12, 2026</div>
   </header>
 
-  <section>
+  <details class="fold" id="changes">
+    <summary><h2>Changes since last baseline</h2><span class="pill" id="chgCount"></span><span class="hint" id="chgHint"></span></summary>
+    <div class="fold-body" id="chgBody"></div>
+  </details>
+
+  <details class="fold" id="dataQuality">
+    <summary><h2>Data quality</h2><span class="pill" id="dqCount"></span><span class="hint" id="dqHint"></span></summary>
+    <div class="fold-body" id="dqBody"></div>
+  </details>
+
+  <section id="throughput">
+    <div class="section-head">
+      <h2>Throughput</h2>
+      <span class="hint" id="tpHint"></span>
+    </div>
+    <div class="chart-card" style="padding:0">
+      <div class="tp-kpis" id="tpKpis"></div>
+      <div class="tp-chart" id="tpChart"></div>
+      <div class="tp-sub" id="tpPeople"></div>
+    </div>
+  </section>
+
+  <section id="closedSection">
     <div class="section-head">
       <h2>Closed this year</h2>
       <span class="hint">Closed Complete work with an end date in 2026 — grouped by assignee</span>
@@ -219,15 +307,8 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
 
   <div class="kpi-row" id="kpiRow"></div>
 
-  <section id="changes">
-    <div class="section-head">
-      <h2>Changes since last baseline</h2>
-      <span class="hint" id="chgHint"></span>
-    </div>
-    <div id="chgBody" class="chart-card" style="padding:0"></div>
-  </section>
 
-  <section>
+  <section id="workload">
     <div class="section-head">
       <h2>Workload by person</h2>
       <span class="hint">click a name to filter the table below</span>
@@ -241,7 +322,7 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     </div>
   </section>
 
-  <section>
+  <section id="assigned">
     <div class="section-head">
       <h2>Currently assigned</h2>
       <span class="hint">Open ATCBLD projects assigned within the team hierarchy — excludes Closed Complete and Closed Incomplete</span>
@@ -257,7 +338,7 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     <div id="groups"></div>
   </section>
 
-  <section>
+  <section id="roadmap">
     <div class="section-head">
       <h2>Roadmap</h2>
       <span class="hint">Planned work by program, scheduled this quarter or next quarter — with roadmap date</span>
@@ -272,7 +353,7 @@ footer{color:var(--text-faint);font-size:12px;margin-top:28px;text-align:center;
     <div id="roadmapGroups"></div>
   </section>
 
-  <section>
+  <section id="ooo">
     <div class="section-head">
       <h2>Upcoming Out of Office</h2>
       <span class="hint">Manually maintained by John Felts &mdash; not sourced from ServiceNow</span>
@@ -801,6 +882,11 @@ function renderChanges(){
   const pBase = new Set(BASELINE.A.map(r=>r[2])), pCur = new Set(ROWS.map(r=>r[5]));
   const peopleGone = [...pBase].filter(p=>!pCur.has(p)), peopleNew = [...pCur].filter(p=>!pBase.has(p));
   const total = addedA.length+goneA.length+moved.length+addedR.length+goneR.length+newC.length+peopleGone.length+peopleNew.length;
+  { const alertN = peopleGone.length + goneA.length;
+    const c = document.getElementById('chgCount'), f = document.getElementById('changes');
+    c.textContent = total ? total + (total===1?' change':' changes') : 'no changes';
+    c.className = 'pill ' + (alertN ? 'warn' : (total ? 'active' : 'closed'));
+    f.classList.toggle('alert', alertN > 0); }
   document.getElementById('chgHint').textContent = 'Compared with the pull from '+BASELINE.date+(total?'':' — nothing has changed');
   const col = (title,html) => '<div class="chg-col"><h3>'+title+'</h3>'+html+'</div>';
   const people = peopleGone.map(p=>'<div class="chg-item"><span class="pill warn">No longer in Assigned</span> '+esc(p)+'<span class="why">No open projects assigned — confirm this is expected</span></div>')
@@ -824,5 +910,118 @@ renderChanges();
   if (!m) return;
   document.getElementById('asOfText').textContent = 'Data as of ' + m[1];
   document.getElementById('asOf').hidden = false;
+})();
+
+// ================= Dashboard enhancements =================
+const TEAM = ["Diana Newman","Graci Badami","John Felts","Justin Hoppe","Mike Lafser","Nichole Mooney-Aubry","Terry Huber","Tyler Smith","Will Robertson"];
+// Closed Complete projects with no end date (refreshed with the data; they would otherwise be invisible to the Closed report)
+const DQ_CLOSED_NO_END = [];
+const REPORT_BASE = 'https://wwt1se.service-now.com/sys_report_template.do?jvar_report_id=';
+const REPORT_IDS = {'Closed this year':'e0c2bc0ceb4b0f10393bf984cad0cdc2','Currently assigned':'513667bfebb6cb10393bf984cad0cd7a','Roadmap':'8d63ed10ebc30350393bf984cad0cde2'};
+const ASOF = (function(){ const t=document.querySelector('.source-tag'); const m=t&&t.textContent.match(/pulled ([A-Z][a-z]{2} \d{1,2}, \d{4})/); const d=m?new Date(m[1]):new Date(); d.setHours(0,0,0,0); return d; })();
+const DAY = 86400000;
+const fmtD = d => MONTHS[d.getMonth()]+' '+d.getDate();
+
+// ---- Report links on section headers ----
+document.querySelectorAll('.section-head h2').forEach(h2=>{
+  const id = REPORT_IDS[h2.textContent.trim()];
+  if(!id) return;
+  const a=document.createElement('a'); a.className='rep-link'; a.href=REPORT_BASE+id; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent='ServiceNow report \u2197';
+  h2.insertAdjacentElement('afterend',a);
+});
+
+// ---- Throughput ----
+(function renderThroughput(){
+  const dates = PUBLISHED_ROWS.map(r=>parseDate(r[7]));
+  const inRange = (d,days,off=0)=>{const age=(ASOF-d)/DAY+1; return age>off && age<=days+off;};
+  const d7=dates.filter(d=>inRange(d,7)).length;
+  const d30=dates.filter(d=>inRange(d,30)).length;
+  const p30=dates.filter(d=>inRange(d,30,30)).length;
+  const d90=dates.filter(d=>inRange(d,90)).length;
+  const yr=ASOF.getFullYear(); const ytd=dates.filter(d=>d.getFullYear()===yr).length;
+  const monthsElapsed=ASOF.getMonth()+ASOF.getDate()/new Date(yr,ASOF.getMonth()+1,0).getDate();
+  const avg=ytd/Math.max(monthsElapsed,0.5);
+  const delta=(a,b)=>{const x=a-b; if(!b&&!a) return ['no change',''];  return [(x>0?'\u25B2 +':x<0?'\u25BC ':'\u2192 ')+x+' vs prior 30 days', x>0?'up':x<0?'down':''];};
+  const [dt,dc]=delta(d30,p30);
+  document.getElementById('tpKpis').innerHTML=[
+    [d7,'Closed last 7 days',''],[d30,'Closed last 30 days','<div class="delta '+dc+'">'+dt+'</div>'],[d90,'Closed last 90 days',''],[ytd,'Closed this year',''],[avg.toFixed(1),'Average per month','']
+  ].map(([n,l,x])=>'<div class="kpi"><div class="num">'+n+'</div><div class="label">'+l+'</div>'+x+'</div>').join('');
+  // monthly series Jan..as-of month
+  const nm=ASOF.getMonth()+1; const counts=new Array(nm).fill(0);
+  dates.forEach(d=>{ if(d.getFullYear()===yr && d.getMonth()<nm) counts[d.getMonth()]++; });
+  const ma=counts.map((_,i)=>{const s=counts.slice(Math.max(0,i-2),i+1);return s.reduce((a,b)=>a+b,0)/s.length;});
+  const W=640,Hh=190,pl=30,pr=10,pt=14,pb=26; const max=Math.max(5,...counts); const top=Math.ceil(max/5)*5;
+  const bw=(W-pl-pr)/nm; const y=v=>pt+(Hh-pt-pb)*(1-v/top);
+  let svg='<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Projects closed per month with 3-month moving average">';
+  for(let g=0;g<=top;g+=top/ (top>=10?5:top)){ const gy=y(g); svg+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--border)" stroke-width="1"/><text x="'+(pl-6)+'" y="'+(gy+4)+'" text-anchor="end">'+Math.round(g)+'</text>'; }
+  counts.forEach((c,i)=>{ const x=pl+i*bw+bw*0.18, w=bw*0.64, yy=y(c); const partial=i===nm-1;
+    svg+='<rect x="'+x+'" y="'+yy+'" width="'+w+'" height="'+(Hh-pb-yy)+'" rx="3" fill="var(--accent)" opacity="'+(partial?0.45:0.85)+'"><title>'+MONTHS[i]+': '+c+' closed'+(partial?' (month to date)':'')+'</title></rect>';
+    svg+='<text x="'+(x+w/2)+'" y="'+(yy-4)+'" text-anchor="middle" style="fill:var(--text-dim)">'+(c||'')+'</text>';
+    svg+='<text x="'+(x+w/2)+'" y="'+(Hh-8)+'" text-anchor="middle">'+MONTHS[i]+(partial?'*':'')+'</text>'; });
+  const pts=ma.map((v,i)=>(pl+i*bw+bw/2)+','+y(v)).join(' ');
+  svg+='<polyline points="'+pts+'" fill="none" stroke="var(--state-warn)" stroke-width="2" stroke-dasharray="5 4"/>';
+  ma.forEach((v,i)=>{svg+='<circle cx="'+(pl+i*bw+bw/2)+'" cy="'+y(v)+'" r="3" fill="var(--state-warn)"><title>3-month average through '+MONTHS[i]+': '+v.toFixed(1)+'</title></circle>';});
+  svg+='</svg>';
+  document.getElementById('tpChart').innerHTML=svg+'<div class="legend"><span><i style="background:var(--accent)"></i> Closed per month ('+'* = month to date)</span><span><i style="background:var(--state-warn)"></i> 3-month moving average</span></div>';
+  // per-person, last 90 days
+  const by={}; PUBLISHED_ROWS.forEach(r=>{ if(inRange(parseDate(r[7]),90)) by[r[5]]=(by[r[5]]||0)+1; });
+  const people=Object.keys(by).sort((a,b)=>by[b]-by[a]); const mx=Math.max(1,...people.map(p=>by[p]));
+  document.getElementById('tpPeople').innerHTML='<h3>Closed in the last 90 days, by person</h3>'+(people.length?people.map(p=>'<div class="bar-row" style="grid-template-columns:150px 1fr 36px"><div class="name">'+esc(p)+'</div><div class="bar-track"><div class="bar-seg active" style="width:'+(by[p]/mx*100).toFixed(1)+'%"></div></div><div class="count">'+by[p]+'</div></div>').join(''):'<div class="chg-none">Nothing closed in the last 90 days</div>');
+  document.getElementById('tpHint').textContent='Based on end dates of Closed Complete projects, as of '+fmtD(ASOF)+', '+ASOF.getFullYear();
+})();
+
+// ---- Data quality ----
+(function renderDQ(){
+  const issues=[]; const add=(sev,title,detail)=>issues.push({sev,title,detail});
+  const blankA=ROWS.filter(r=>!r[7]), blankR=ROADMAP_ROWS.filter(r=>!r[7]);
+  if(blankA.length) add('warn',blankA.length+' assigned project(s) have no roadmap date',blankA.map(r=>r[0]).join(', '));
+  if(blankR.length) add('warn',blankR.length+' roadmap project(s) have no roadmap date',blankR.map(r=>r[0]).join(', '));
+  const late=ROWS.filter(r=>r[7] && parseDate(r[7])<ASOF);
+  if(late.length) add('warn',late.length+' assigned project(s) are past their roadmap date',late.map(r=>r[0]+' ('+r[5]+', '+formatDate(r[7])+')').join('; '));
+  const incons=ROWS.filter(r=>(r[3]==='New' && ['Building','Review','Support'].includes(r[4])) || (r[3]==='Active' && r[4]==='Backlog'));
+  if(incons.length) add('info',incons.length+' assigned project(s) have a state that does not match the phase',incons.map(r=>r[0]+' ('+r[3]+' / '+r[4]+')').join('; '));
+  const idle=TEAM.filter(p=>!ROWS.some(r=>r[5]===p));
+  if(idle.length) add('info',idle.length+' team member(s) have no open assigned projects',idle.join(', '));
+  const unknown=[...new Set(ROWS.map(r=>r[5]))].filter(p=>p&&p!=='(empty)'&&!TEAM.includes(p));
+  if(unknown.length) add('info','Assigned to someone outside the team list',unknown.join(', '));
+  const noProg=ROWS.filter(r=>!r[6]);
+  if(noProg.length) add('info',noProg.length+' assigned project(s) have no program',noProg.map(r=>r[0]).join(', '));
+  if(DQ_CLOSED_NO_END.length) add('warn',DQ_CLOSED_NO_END.length+' Closed Complete project(s) have no end date, so they are missing from Closed this year',DQ_CLOSED_NO_END.join(', '));
+  const warns=issues.filter(i=>i.sev==='warn').length;
+  const c=document.getElementById('dqCount');
+  c.textContent=issues.length?issues.length+(issues.length===1?' item':' items'):'all clear';
+  c.className='pill '+(warns?'warn':(issues.length?'new':'active'));
+  document.getElementById('dataQuality').classList.toggle('alert',warns>0);
+  document.getElementById('dqHint').textContent='Automatic checks on the data in this page';
+  document.getElementById('dqBody').innerHTML=issues.length?'<div class="dq-list">'+issues.map(i=>'<div class="dq-item"><span class="pill '+(i.sev==='warn'?'warn':'new')+'">'+(i.sev==='warn'?'Check':'FYI')+'</span> '+esc(i.title)+'<span class="why">'+esc(i.detail)+'</span></div>').join('')+'</div>':'<div class="dq-ok">No data-quality issues found.</div>';
+})();
+
+// ---- Out now / next 7 days ----
+(function renderOutNow(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const parse=s=>{const d=new Date(s); if(isNaN(d)) return null; d.setHours(0,0,0,0); return d;};
+  const now=[], soon=[];
+  OOO_ROWS.forEach(r=>{ const a=parse(r[1]), b=parse(r[2]); if(!a||!b) return;
+    const item={who:r[0],a,b,why:r[3]||''};
+    if(a<=today && b>=today) now.push(item); else if(a>today && (a-today)/DAY<=7) soon.push(item); });
+  const rng=i=>i.a.getTime()===i.b.getTime()?fmtD(i.a):fmtD(i.a)+'\u2013'+fmtD(i.b);
+  const txt=i=>esc(i.who)+' ('+rng(i)+(i.why?', '+esc(i.why):'')+')';
+  const parts=[];
+  if(now.length) parts.push('<span><b>Out now:</b> '+now.map(txt).join(', ')+'</span>');
+  if(soon.length) parts.push('<span><b>Next 7 days:</b> '+soon.map(txt).join(', ')+'</span>');
+  const el=document.getElementById('outNow');
+  if(parts.length){ el.innerHTML=parts.join('<span class="sep">|</span>'); el.hidden=false; }
+  // highlight rows in the table
+  document.querySelectorAll('#oooBody tr').forEach(tr=>{ const td=tr.querySelectorAll('td'); if(td.length<3) return;
+    const a=parse(td[1].textContent), b=parse(td[2].textContent); if(!a||!b) return;
+    if(a<=today&&b>=today) tr.classList.add('ooo-now'); else if(a>today&&(a-today)/DAY<=7) tr.classList.add('ooo-soon'); });
+})();
+
+// ---- Sticky nav: highlight current section ----
+(function(){
+  const links=[...document.querySelectorAll('#jump a')]; if(!('IntersectionObserver' in window)) return;
+  const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ links.forEach(l=>l.classList.remove('on')); const a=map.get(e.target.id); if(a){a.classList.add('on'); a.scrollIntoView({block:'nearest',inline:'nearest'});} } }); },{rootMargin:'-70px 0px -65% 0px'});
+  map.forEach((a,id)=>{ const s=document.getElementById(id); if(s) io.observe(s); });
 })();
 </script>
